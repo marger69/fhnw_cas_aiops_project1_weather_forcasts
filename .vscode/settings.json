@@ -1,0 +1,5 @@
+{
+    "remote.autoForwardPortsFallback": 0,
+    "python.terminal.useEnvFile": true,
+    "python.envFile": "${workspaceFolder}/.env"
+}
