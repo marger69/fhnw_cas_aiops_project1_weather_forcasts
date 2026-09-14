@@ -1,6 +1,11 @@
 # fhnw_cas_aiops_project1_weather_forcasts
 
-# Projektarbeit: MLOps
+* Projektarbeit: MLOps
+* Fachhochschule: FHNW
+* Referent: Tobias Mérinat
+* Autor: Markus Gerber mit KI-Unterstützung
+* Erstellt vom 12.09. - 15.09.2026
+* Aufwand: ca. 32h
 
 ## Aufgabenstellung
 
@@ -62,18 +67,28 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 | `hour_of_day` | Integer | Stunde des Tages (0–23) für den Tagesverlauf |
 
 ### 3. GitHub-Repository
-* Name: fhnw_cas_aiops_project1_weather_forcasts
+* Name: `fhnw_cas_aiops_project1_weather_forecasts`
 
 ### 4. Hopsworks-Project
-* Name: fhnw_p1_weather_forcasts
-* API-Key sicher laden einrichten mit der .enc Datei mit python-dotenv
-* 
+* Name: `fhnw_p1_weather_forecasts`
+* API-Key sicher laden einrichten mit einer `.env`-Datei via `python-dotenv`
 
 ### 5. Dependencies
-* Name: fhnw_p1_weather_forcasts
-* Prüfung der Python-Version (Python < 3.14): `python --version` | Installierte Python-Version: 3.14.2
+* Name: `fhnw_p1_weather_forecasts`
+* Prüfung der Python-Version (Python < 3.13): `python --version`
+  * Installierte Python-Version: 3.14.2
 * Installation von Hopsworks: `pip install hopsworks`
-* ERFHARUNG: Die Verbindung zu Hopsworks aus Codespaces gestaltete sich schwierig Ursache waren
-  * Das fehlende pyarrow Paket
-  * Die falsche Pyton Version, es funktionierte nur mit der Version 3.12
+* **Erfahrung:** Die Verbindung zu Hopsworks aus Codespaces gestaltete sich schwierig. Ursachen waren:
+  * Das fehlende `pyarrow`-Paket
+  * Die falsche Python-Version – es funktionierte nur mit Version 3.12
 
+### 6. Feature Pipeline
+* Vorgehen: Ich habe die Feature Pipeline Schritt für Schritt aufgebaut und dabei pro Task einen Code-Teil erstellt.
+* Folgende Code-Teile habe ich erstellt:
+
+#### 6.1. Hopsworks-Projektverbindungsskript
+* Einbau eines sicheren Ladens des API-Keys mit einer `.env`-Datei
+* Import der `hopsworks`-Library
+
+#### 6.2. Rohdaten via API abrufen
+* Rohdaten via API abrufen, Datenquelle: `url = "https://api.open-meteo.com/v1/forecast"
