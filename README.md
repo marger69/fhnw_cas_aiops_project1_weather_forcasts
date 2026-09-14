@@ -34,6 +34,14 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 
 ## Projekt-Details
 
+### Beschreibung
+* Dieses Projekt lädt stündliche Wetterdaten über die **Open-Meteo API**, erstellt daraus **Prognose-/Sturmrelevante Features** (Rolling Windows, Druckabfall, Windanomalien etc.) und schreibt die Ergebnisse optional in einen **Hopsworks Feature Store**.
+### Zweck
+* 🌦️ **Abruf von Wetter-Rohdaten** (past_days + forecast_days) für definierte Standorte  
+* 🛠️ **Engineering relevanter Features** für Unwetter-/Sturmindikatoren  
+* 🧾 **Aufbau eines finalen Datensatzes** inkl. **Primary Key (event_id)** & **event_time**  
+* 🚀 **Upload in eine Hopsworks Feature Group** für spätere ML-Modelle  
+
 ### 1. Datenquelle
 * Data Source: Open-Meteo Weather API
 * Quelle: [https://open-meteo.com/](https://open-meteo.com/)
@@ -92,3 +100,40 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 
 #### 6.2. Rohdaten via API abrufen
 * Rohdaten via API abrufen, Datenquelle: `url = "https://api.open-meteo.com/v1/forecast"
+
+#### 6.3. Features engineeren
+* Features, welche für die Unwetter-Prognosen entscheidend sind:
+    * Druckabfall (Vorbote für Stürme)
+    * Windböen-Anomalien
+    * Rolling Windows für Trends, siehe nachfolgende Tabelle
+
+| Feature | Berechnung | Bedeutung |
+|---|---|---|
+| Rolling Mean (3h) | Ø Temperatur letzte 3 Stunden | Glatter Trend, weniger Rauschen |
+| Rolling Std (6h) | Standardabweichung letzte 6h | Volatilität/Instabilität der Wetterlage |
+| Rolling Max/Min (24h) | Max/Min Windgeschwindigkeit letzte 24h | Erkennt Extremwerte im Tagesverlauf |
+| Rolling Sum (Niederschlag, 3h) | Summe Regen letzte 3h | Kumulierter Niederschlag → Überflutungsrisiko |
+| Delta/Differenz | Aktueller Wert − Rolling Mean | Zeigt Abweichung vom "normalen" Trend |
+| Druckänderung (Δp, 3h) | Luftdruck jetzt − Luftdruck vor 3h | Starker Abfall = Hinweis auf Sturm/Unwetter |
+
+
+#### 6.4. Dataframe und Labels
+* Dieses Modul erstellt aus einem Feature-DataFrame (`df`) den **finalen Datensatz** für Training/Inference bzw. für den Upload in ein Feature Store System
+* Die Funktion `build_final_dataframe(df)`:
+  * selektiert relevante Feature- und Label-Spalten
+  * erzeugt einen **Primary Key**: `event_id`
+  * setzt die **Event Time**: `event_time`
+
+#### 6.5. 
+* Dieser Code erstellt eine **Hopsworks Feature Group** und lädt anschliessend den vorbereiteten `final_df` Datensatz hinein.
+* Details der Feature-Group
+
+| Parameter | Wert | Bedeutung |
+|---|---|---|
+| Name | `weather_features_batch` | Eindeutiger Bezeichner der Feature-Group |
+| Version | `1` | Erste Version dieser Feature-Group |
+| Primary Key | `event_id` | Eindeutige Identifikation jeder Zeile |
+| Event Time | `event_time` | Zeitstempel-Spalte für Time-Travel/Versionierung |
+| Time Travel Format | `HUDI` | Speicherformat, das historische Versionen & Time-Travel-Queries ermöglicht |
+| Stream | `True` | Ermöglicht Streaming-Inserts (z. B. via Kafka) |
+| Description | `"Stündliche Wetterfeatures für die Unwetterprognose"` | Beschreibungstext in der UI |
