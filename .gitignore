@@ -1,2 +1,6 @@
 # .gitignore
 .env
+
+.venv312/
+.venv/
+__pycache__/
