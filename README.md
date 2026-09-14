@@ -67,9 +67,14 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 ### 4. Hopsworks-Project
 * Name: fhnw_p1_weather_forcasts
 * API-Key sicher laden einrichten mit der .enc Datei mit python-dotenv
+* 
 
 ### 5. Dependencies
 * Name: fhnw_p1_weather_forcasts
 * Prüfung der Python-Version (Python < 3.14): `python --version` | Installierte Python-Version: 3.14.2
 * Installation von Hopsworks: `pip install hopsworks`
-  Es wurde eine virtuelle Umgebung erstellt, weil es Abhängigkeiten gab.
+* ERFHARUNG: Die Verbindung zu Hopsworks aus Codespaces gestaltete sich schwierig Ursache waren
+  * Das fehlende pyarrow Paket
+  * Die falsch Pyton Version, es funktionierte nur mit der Version 3.12
+
+  
