@@ -75,6 +75,5 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 * Installation von Hopsworks: `pip install hopsworks`
 * ERFHARUNG: Die Verbindung zu Hopsworks aus Codespaces gestaltete sich schwierig Ursache waren
   * Das fehlende pyarrow Paket
-  * Die falsch Pyton Version, es funktionierte nur mit der Version 3.12
+  * Die falsche Pyton Version, es funktionierte nur mit der Version 3.12
 
-  
