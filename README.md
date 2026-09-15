@@ -5,7 +5,7 @@
 * Projektarbeit: MLOps
 * Referent: Tobias Mérinat
 * Autor: Markus Gerber
-* Erstellt vom 12.09. bis 15.09.2026
+* Erstellt vom 12.09. bis 16.09.2026
 * Aufwand: ca. 32h
 
 ## Aufgabenstellung
