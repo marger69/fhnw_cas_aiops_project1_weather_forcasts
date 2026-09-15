@@ -178,12 +178,9 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 | Description | `"Stündliche Wetterfeatures für die Unwetterprognose"` | Beschreibungstext in der UI |
 
 #### 6.6. Feature-Pipeline
-### Feature Pipeline
-
 Die Funktion `run_feature_pipeline` bildet den zentralen Baustein der Feature-Pipeline. Sie ruft für jede definierte Location Wetterdaten ab, führt das Feature Engineering durch und lädt die Daten optional in den Hopsworks Feature Store hoch.
 
 **Ablauf der Funktion:**
-
 1. **Datenabruf je Standort**
    Für jede Location in der Liste `locations` wird über `fetch_weather_data()` ein DataFrame mit historischen und prognostizierten Wetterdaten abgerufen. Die Parameter `past_days` und `forecast_days` steuern den Zeitraum der Vergangenheits- und Vorhersagedaten. Der Location-Name wird als zusätzliche Spalte ergänzt, um die Daten später zuordnen zu können.
 
@@ -219,5 +216,75 @@ Die Funktion `run_feature_pipeline` bildet den zentralen Baustein der Feature-Pi
 Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die Feature Group bereits in einer vorherigen Zelle befüllt wurde. Dies ermöglicht eine End-to-End-Prüfung der Pipeline ohne erneuten Upload der Daten.
 
 
+### 7. Trainings-Pipeline
+#### 7.1. Feature Group laden
+* Login bei Hopsworks über `hopsworks.login()`
+  * Laden der `.env`-Datei mit den Zugangsdaten
+  * Auslesen von API-Key und Projektname aus den Umgebungsvariablen
+* Zugriff auf den Feature Store via `project.get_feature_store()`
+* Laden der Feature Group `weather_features_batch` (Version 1)
+* Ausgabe von Name, Version und Anzahl Features zur Bestätigung
+* Bestehende Feature Group `weather_features_batch` 
+
+#### 7.2. Feature View erstellen (Query mit Features + Label)
+* Definiert eine Liste von 22 Feature-Spalten (u. a. Temperatur, Luftfeuchtigkeit, Druck, Wind, rollende Fenster-Aggregationen) sowie die Ziel-/Label-Spalte `is_severe_weather`
+* Prüft anhand der verfügbaren Spalten in `weather_fg`, ob alle benötigten Features und das Label tatsächlich vorhanden sind
+* Löst bei fehlenden Spalten einen `ValueError` mit genauer Auflistung aus, um inkonsistente Feature Views zu verhindern
+* Erstellt über `weather_fg.select()` eine Query, die nur die relevanten Feature- und Label-Spalten enthält
+* Legt mittels `fs.get_or_create_feature_view()` den Feature View `severe_weather_fv` (Version 1) an oder ruft ihn ab, falls er bereits existiert
+* Verknüpft die Query mit dem Label `is_severe_weather`, um den Feature View direkt für überwachtes Lernen nutzbar zu machen
+* Ermöglicht durch den Feature View eine reproduzierbare und versionierte Grundlage für Trainings- und Testdatensätze
+* Gibt nach erfolgreicher Erstellung Name und Version des Feature Views zur Bestätigung aus
+
+#### 7.3. Modell trainieren und evaluieren
+* Erstellt aus dem Feature View `severe_weather_fv` einen versionierten Trainingsdatensatz im CSV-Format über `create_training_data()`
+* Lädt die Trainingsdaten (Features `X` und Label `y`) mittels `get_training_data()` und wandelt die Zielspalte `is_severe_weather` in einen numerischen, ganzzahligen Typ um
+* Teilt die Daten stratifiziert in Trainings- und Testset auf (80/20), um die Klassenverteilung in beiden Sets beizubehalten
+* Berechnet ausgeglichene Klassengewichte mit `compute_class_weight()`, um dem Ungleichgewicht zwischen seltenen Unwetter-Ereignissen und Normalfällen entgegenzuwirken
+* Konfiguriert einen `XGBClassifier` mit angepasstem `scale_pos_weight`, um die Vorhersage der Minderheitsklasse (Unwetter) zu verbessern
+* Trainiert das Modell auf den Trainingsdaten und nutzt das Testset als Evaluationsset während des Trainings (`eval_set`)
+* Erstellt Vorhersagen auf dem Testset und wertet das Modell mittels `classification_report()` aus (Precision, Recall, F1-Score je Klasse)
+* Dient als zentraler Trainingsschritt der Trainings-Pipeline, um ein einsatzfähiges Klassifikationsmodell für Unwetterereignisse zu erzeugen
+
+#### 7.4. Modell evaluieren
+* Erstellt Vorhersagen (`y_pred`) sowie Wahrscheinlichkeiten (`y_pred_proba`) für die positive Klasse auf Basis des Testsets
+* Gibt einen ausführlichen `classification_report` mit Precision, Recall und F1-Score für die Klassen "Kein Unwetter" und "Unwetter" aus
+* Berechnet den F1-Score als zusammenfassende Kennzahl zur Bewertung der Modellgüte bei unausgeglichenen Klassen
+* Berechnet den ROC-AUC-Wert, sofern im Testset beide Klassen vorhanden sind, um die Trennschärfe des Modells zu bewerten
+* Fängt den Sonderfall ab, dass im Testset nur eine Klasse vorkommt, und gibt in diesem Fall eine entsprechende Warnung anstelle des ROC-AUC-Werts aus
+* Erstellt eine Confusion Matrix zur Visualisierung von richtig- und falsch-klassifizierten Fällen je Klasse
+* Visualisiert die Confusion Matrix als Heatmap mittels `seaborn`, inklusive Achsentiteln für tatsächliche und vorhergesagte Klassen
+* Speichert die Confusion-Matrix-Grafik als PNG-Datei (`confusion_matrix.png`) zur Dokumentation der Modellleistung
+* Dient als abschliessender Evaluationsschritt, um die Eignung des Modells für die Unwettererkennung nachvollziehbar zu belegen
+
+#### 7.5. Feature Importance
+* Berechnet die Wichtigkeit jedes Features anhand von `model.feature_importances_`
+* Sortiert die Features absteigend nach ihrer Relevanz für das Modell
+* Gibt die Top 10 wichtigsten Features in der Konsole aus
+* Visualisiert die Top 10 Features als Balkendiagramm mittels `seaborn`
+* Speichert die Grafik als `feature_importance.png` zur Dokumentation
+* Unterstützt die Interpretierbarkeit des Modells im Rahmen der Trainings-Pipeline
+
+#### 7.6. Modell speichern und Metriken für die Model Registry vorbereiten
+* Legt ein lokales Verzeichnis `severe_weather_model` zur Ablage von Modell und Metriken an
+* Speichert das trainierte Modell mittels `joblib` als `model.joblib`
+* Sammelt relevante Kennzahlen wie F1-Score, Anzahl Trainings- und Testdaten sowie den Anteil positiver Klassen
+* Prüft, ob der ROC-AUC-Wert definiert ist, und schliesst ihn nur bei Gültigkeit in die Metriken ein
+* Gibt eine Warnung aus, falls der ROC-AUC-Wert nicht bestimmbar ist
+* Speichert die Metriken strukturiert als `metrics.json`-Datei
+* Bereitet damit Modell und Metriken für eine spätere Registrierung in der Model Registry vor
+
+#### 7.7.Upload in Hopsworks Model Registry
+* Ruft die Model Registry des Hopsworks-Projekts über `project.get_model_registry()` ab
+* Definiert Input- und Output-Schema anhand der Trainingsdaten zur Dokumentation und Validierung
+* Kombiniert beide Schemas in einem `ModelSchema` für eine vollständige Modellbeschreibung
+* Erstellt ein neues Modell-Objekt in der Registry mit Name, Metriken, Schema und Beispiel-Input
+* Verknüpft das Modell mit der zugehörigen Feature View, um die Lineage nachvollziehbar zu machen
+* Lädt das lokal gespeicherte Modellverzeichnis in die Model Registry hoch
+* Gibt nach erfolgreichem Upload Name, Version und Model-ID zur Bestätigung aus
 
 ## Infernece Pipline
+o	1 vergangener Tag für die Rolling-Window-Berechnung
+o	3 Prognosetage (forecast_days=3)
+o	Stündliche Live-Wetterdaten
+o	Zeitzone: UTC
