@@ -1,0 +1,12 @@
+hopsworks
+openmeteo-requests
+requests-cache
+retry-requests
+python-dotenv
+pandas
+numpy
+scikit-learn
+xgboost
+joblib
+matplotlib
+seaborn

@@ -28,8 +28,6 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 9. Dokumentation in einer `README.md`-Datei im Repository
 ---
 
-## Projekt-Details
-
 ### Beschreibung
 * Dieses Projekt lädt stündliche Wetterdaten über die **Open-Meteo API**, erstellt daraus **prognose- bzw. sturmrelevante Features** (Rolling Windows, Druckabfall, Windanomalien etc.) und schreibt die Ergebnisse optional in einen **Hopsworks Feature Store**.
 
@@ -77,8 +75,9 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 
 ### 2. Auswahl von Target & Features
 
+   * Druckänderung (Δp, 3h) | Luftdruck jetzt − Luftdruck vor 3h | Starker Abfall = Hinweis auf Sturm/Unwetter |
 #### Target
-> „Als Mitarbeiter der Versicherung 'die Mobiliar' sehe ich in der präzisen Kurzfrist-Prognose für Unwetterwarnungen einen entscheidenden Mehrwert für unsere Risikoprävention."
+> „Als Mitarbeiter der Mobiliar sehe ich in präzisen Kurzfrist-Prognosen zu Unwetterwarnungen einen entscheidenden Baustein für eine wirksame Risikoprävention."
 
 #### Features
 
@@ -103,6 +102,11 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 | `day_of_year_sin` / `day_of_year_cos` | Float | Sinus-/Kosinus-Transformation des Jahrestags (Saisonalität) |
 | `hour_of_day` | Integer | Stunde des Tages (0–23) für den Tagesverlauf |
 
+Hinweis: Die oben geplanten zyklischen Zeitfeatures sowie `temp_lag_24h` und
+`temp_rolling_avg_7d` sind aktuell nicht Bestandteil des trainierten Modells. Verwendet werden
+die in der Feature-Pipeline berechneten Rolling-Summen, Rolling-Maxima, Druckänderungen und
+Windanomalien.
+
 ### 3. GitHub-Repository
 * Account: `Mein Google-Account`
 * Projektname: `fhnw_cas_aiops_project1_weather_forecasts`
@@ -116,6 +120,12 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 * Name der virtuellen Umgebung: `fhnw_p1_weather_forecasts`
 * Prüfung der Python-Version (Python < 3.13): `python --version`
 * **Bemerkung:** Installierte Python-Version: 3.12.3
+* Installation der Abhängigkeiten:
+  ```bash
+  python -m venv .venv
+  source .venv/bin/activate
+  pip install -r requirements.txt
+  ```
 
 ### 6. Feature-Pipeline
 * Vorgehen: Die Feature Pipeline wurde Schritt für Schritt aufgebaut, wobei pro Task ein eigener Code-Teil erstellt wurde.
@@ -126,6 +136,7 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 *	Stündliche Wetterdaten
 *	Zeitzone: Europe/Berlin
 *	Insgesamt ungefähr 8 Tage Daten
+* Tatsächlicher aktueller Trainingslauf: 30 vergangene Tage (`past_days=30`), damit positive und negative Labels entstehen.
 * Definierte Standorte
   *	München, Breitengrad: 48.1351, Längengrad: 11.5820
   * Hamburg, Breitengrad: 53.5511, Längengrad: 9.9937
@@ -188,7 +199,7 @@ Die Funktion `run_feature_pipeline` bildet den zentralen Baustein der Feature-Pi
    Die einzelnen DataFrames aller Standorte werden zu einem gemeinsamen Rohdaten-DataFrame (`raw_df`) zusammengeführt.
 
 3. **Feature Engineering**
-   Über `engineer_features()` werden aus den Rohdaten die eigentlichen Wetterfeatures berechnet (z. B. Rolling Windows, Delta-Werte, Druckänderungen, zyklische Zeitmerkmale).
+  Über `engineer_features()` werden aus den Rohdaten die eigentlichen Wetterfeatures berechnet (z. B. Rolling Windows, Delta-Werte, Druckänderungen und Windanomalien).
 
 4. **Erstellung des finalen DataFrames**
    `build_final_dataframe()` erzeugt den finalen DataFrame inklusive `event_id` und `event_time`, welcher als Grundlage für Training und Inferenz dient.
@@ -320,13 +331,11 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Ermöglicht dadurch flexible Ad-hoc-Abfragen für beliebige Standorte ausserhalb der vordefinierten Liste
 
 #### 8.4. Real-Time Modus (Online Feature Store)
-* Definiert die Funktion `get_live_feature_vector`, um einen einzelnen Feature-Vektor anhand des Primary Keys `event_id` abzurufen
-* Liest die gesamte Batch Feature Group über `select_all().read()` aus und filtert die passende Zeile
-* Löst einen `KeyError` aus, falls für die angegebene `event_id` kein passender Feature-Vektor gefunden wird
-* Ermittelt die aktuelle Stunde in der Zeitzone `Europe/Berlin` mittels `ZoneInfo`, um einen zeitlich korrekten Schlüssel zu erzeugen
-* Erstellt daraus eine eindeutige `event_id` basierend auf Breitengrad, Längengrad und aktueller Stunde
-* Ruft beispielhaft den aktuellen Feature-Vektor für den Standort München ab
-* Gibt den geladenen Feature-Vektor zur Kontrolle in der Konsole aus
+* Ruft die aktuelle Open-Meteo-Abfrage über `fetch_live_forecast()` tatsächlich auf
+* Berechnet aus den Live-Daten dieselben Rolling-, Druck- und Anomalie-Features wie die Feature-Pipeline
+* Wählt den aktuellen bzw. nächsten verfügbaren Zeitpunkt aus und erstellt daraus einen Feature-Vektor
+* Verwendet diesen Live-Feature-Vektor direkt für die Prediction
+* Der Featurestore bleibt die Quelle für historische Batch-Features und das Training; das aktuelle Feature wird zur Inferenzzeit aus der API bezogen
 
 #### 8.5. Modell aus der Model Registry herunterladen
 * Greift über `project.get_model_registry()` auf die Hopsworks Model Registry zu
@@ -360,3 +369,16 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Die Modellqualität stand in dieser Arbeit nicht im Vordergrund. Trotzdem konnte ich den vollständigen Ablauf von der Datenbeschaffung bis zur Unwetterprognose realisieren.
 * Als mögliche Weiterentwicklung sehe ich die Verwendung historischer Unwetterdaten, eine genauere Definition des Targets und eine grössere Anzahl an Standorten, um das Modell realistischer zu trainieren.
 * Aktuell ist die Wahrscheinlichkeit eines Unwetters relativ gering, weshalb das Modell bisher keine Warnung ausgegeben hat.
+
+### Limitationen und Ausführungshinweise
+* Das Target wird aus heuristischen Wetter-Schwellenwerten erzeugt und ist kein extern validiertes
+  Unwetterlabel. Die historischen Daten müssen mindestens eine positive und eine negative
+  Labelklasse enthalten.
+* Das Training prüft diese Voraussetzung und bricht mit einer verständlichen Fehlermeldung ab,
+  wenn nur eine Klasse vorhanden ist. Nach einer Änderung der Daten oder Schwellenwerte müssen
+  Feature- und Trainings-Pipeline erneut ausgeführt und das Modell neu registriert werden.
+* Das Training verwendet aktuell einen stratifizierten Zufallssplit. Für einen produktiven
+  Wetterforecast wäre zusätzlich ein zeitlicher Holdout sinnvoll.
+* Ausführungsreihenfolge: zuerst `Feature Pipeline/feature_pipeline.ipynb` mit `upload=True`,
+  danach `Trainings Pipeline/trainings_pipeline.ipynb` und zuletzt
+  `Inference Pipeline/inference_pipeline.ipynb`.
