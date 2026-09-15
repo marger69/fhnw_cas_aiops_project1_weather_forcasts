@@ -368,7 +368,6 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Das Projekt hat mir gezeigt, dass neben dem Modell selbst auch Datenqualität, Konfiguration, Versionsverwaltung und reproduzierbare Abläufe entscheidend sind.
 * Die Modellqualität stand in dieser Arbeit nicht im Vordergrund. Trotzdem konnte ich den vollständigen Ablauf von der Datenbeschaffung bis zur Unwetterprognose realisieren.
 * Als mögliche Weiterentwicklung sehe ich die Verwendung historischer Unwetterdaten, eine genauere Definition des Targets und eine grössere Anzahl an Standorten, um das Modell realistischer zu trainieren.
-* Aktuell ist die Wahrscheinlichkeit eines Unwetters relativ gering, weshalb das Modell bisher keine Warnung ausgegeben hat.
 
 ### Limitationen und Ausführungshinweise
 * Das Target wird aus heuristischen Wetter-Schwellenwerten erzeugt und ist kein extern validiertes
