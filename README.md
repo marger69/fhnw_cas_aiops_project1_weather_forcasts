@@ -108,11 +108,11 @@ die in der Feature-Pipeline berechneten Rolling-Summen, Rolling-Maxima, Druckän
 Windanomalien.
 
 ### 3. GitHub-Repository
-* Account: `Mein Google-Account`
+* Account: `Mein Account`
 * Projektname: `fhnw_cas_aiops_project1_weather_forecasts`
 
 ### 4. Hopsworks-Projekt
-* Account: `Mein Google-Account`
+* Account: `Mein Account`
 * Name: `fhnw_p1_weather_forecasts`
 * Link: https://eu-west.cloud.hopsworks.ai/p/44167/view
 * **Bemerkung:** Ich wollte eigentlich den Namen `fhnw_cas_aiops_project1_weather_forecasts` überall durchziehen, die Namenslänge war bei Hopsworks jedoch eingeschränkt.
