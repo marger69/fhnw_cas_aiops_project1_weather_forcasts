@@ -10,7 +10,7 @@
 
 ## Wichtige Links
 * Entwickler-Anleitung: [04_Supplementary_information/Entwickler_Anleitung.md](04_Supplementary_information/Entwickler_Anleitung.md)
-* Erklaerung anhand der FTI-Architektur: [04_Supplementary_information/Erklaerung_anhand_der_FTI_Architektur.md](04_Supplementary_information/Erklaerung_anhand_der_FTI_Architektur.md)
+* Erklärung anhand der FTI-Architektur: [04_Supplementary_information/Erklaerung_anhand_der_FTI_Architektur.md](04_Supplementary_information/Erklaerung_anhand_der_FTI_Architektur.md)
 * Feature Pipeline: [01_Feature_Pipeline/feature_pipeline.ipynb](01_Feature_Pipeline/feature_pipeline.ipynb)
 * Trainings Pipeline: [02_Trainings_Pipeline/trainings_pipeline.ipynb](02_Trainings_Pipeline/trainings_pipeline.ipynb)
 * Inference Pipeline: [03_Inference_Pipeline/inference_pipeline.ipynb](03_Inference_Pipeline/inference_pipeline.ipynb)
@@ -19,6 +19,7 @@
 * Requirements: [requirements.txt](requirements.txt)
 * Data Source Open-Meteo Weather API: [https://open-meteo.com/](https://open-meteo.com/)
 * Hopsworks-Projekt: [https://eu-west.cloud.hopsworks.ai/p/44167/view](https://eu-west.cloud.hopsworks.ai/p/44167/view)
+* Github-Projekt: [https://github.com/marger69/fhnw_cas_aiops_project1_weather_forcasts](https://github.com/marger69/fhnw_cas_aiops_project1_weather_forcasts)
 
 ## 1. Aufgabenstellung
 Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-Inference) und Feature Store zu vertiefen. Dazu sollen drei Pipelines implementiert werden.
