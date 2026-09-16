@@ -8,6 +8,15 @@
 * Erstellt vom 12.09. bis 16.09.2026
 * Aufwand: ca. 32h
 
+## Wichtige Links:
+* Entwicker-Anleitung: [04_Supplementary_information/Entwickler_Anleitung.md](04_Supplementary_information/Entwickler_Anleitung.md)
+* Erklaerung anhand der FTI-Architektur: [04_Supplementary_information/Erklaerung_anhand_der_FTI_Architektur.md](04_Supplementary_information/Erklaerung_anhand_der_FTI_Architektur.md)
+* Feature Pipeline: [01_Feature_Pipeline/feature_pipeline.ipynb](01_Feature_Pipeline/feature_pipeline.ipynb)
+* Trainings Pipeline: [02_Trainings_Pipeline/trainings_pipeline.ipynb](02_Trainings_Pipeline/trainings_pipeline.ipynb)
+* Inference Pipeline: [03_Inference_Pipeline/inference_pipeline.ipynb](03_Inference_Pipeline/inference_pipeline.ipynb)
+* Modell: [02_Trainings_Pipeline/severe_weather_model/model.joblib](02_Trainings_Pipeline/severe_weather_model/model.joblib)
+* Metriken: [02_Trainings_Pipeline/severe_weather_model/metrics.json](02_Trainings_Pipeline/severe_weather_model/metrics.json)
+
 ## Aufgabenstellung
 Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-Inference) und Feature Store zu vertiefen. Dazu sollen drei Pipelines implementiert werden.
 
