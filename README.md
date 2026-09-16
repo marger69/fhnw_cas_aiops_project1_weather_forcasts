@@ -8,17 +8,17 @@
 * Erstellt vom 12.09. bis 16.09.2026
 * Aufwand: ca. 32h
 
-## Wichtige Links:
-* Entwicker-Anleitung: [04_Supplementary_information/Entwickler_Anleitung.md](04_Supplementary_information/Entwickler_Anleitung.md)
+## Wichtige Links
+* Entwickler-Anleitung: [04_Supplementary_information/Entwickler_Anleitung.md](04_Supplementary_information/Entwickler_Anleitung.md)
 * Erklaerung anhand der FTI-Architektur: [04_Supplementary_information/Erklaerung_anhand_der_FTI_Architektur.md](04_Supplementary_information/Erklaerung_anhand_der_FTI_Architektur.md)
 * Feature Pipeline: [01_Feature_Pipeline/feature_pipeline.ipynb](01_Feature_Pipeline/feature_pipeline.ipynb)
 * Trainings Pipeline: [02_Trainings_Pipeline/trainings_pipeline.ipynb](02_Trainings_Pipeline/trainings_pipeline.ipynb)
 * Inference Pipeline: [03_Inference_Pipeline/inference_pipeline.ipynb](03_Inference_Pipeline/inference_pipeline.ipynb)
 * Modell: [02_Trainings_Pipeline/severe_weather_model/model.joblib](02_Trainings_Pipeline/severe_weather_model/model.joblib)
 * Metriken: [02_Trainings_Pipeline/severe_weather_model/metrics.json](02_Trainings_Pipeline/severe_weather_model/metrics.json)
-* Requierments: [requirements.txt](requirements.txt)
+* Requirements: [requirements.txt](requirements.txt)
 
-## Aufgabenstellung
+## 1. Aufgabenstellung
 Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-Inference) und Feature Store zu vertiefen. Dazu sollen drei Pipelines implementiert werden.
 
 * Feature Store: Als Feature Store verwenden wir den [Hopsworks Feature Store](https://www.hopsworks.ai/), der nach Erstellung eines Accounts gratis genutzt werden kann.
@@ -26,7 +26,7 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 * Umgebung: Die Projektarbeit kann auf GitHub Codespaces (gestartet aus einem eigenen GitHub-Repository) oder lokal auf dem Laptop umgesetzt werden.
 * Zielsetzung: Es geht nicht darum, ein hochperformantes Modell zu erstellen. Metriken wie Accuracy, F1-Score usw. des trainierten Modells sind bei dieser Projektarbeit zweitrangig.
 
-### Ablauf
+### 1.1. Ablauf
 1. Wahl einer geeigneten Datenquelle
 2. Auswahl eines Targets (Was soll vorhergesagt werden?) und passender Features
 3. Erstellung eines GitHub-Repositorys
@@ -38,13 +38,13 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 9. Dokumentation in einer `README.md`-Datei im Repository
 ---
 
-### Beschreibung
+### 1.2. Beschreibung
 * Dieses Projekt lädt stündliche Wetterdaten über die **Open-Meteo API**, erstellt daraus **prognose- bzw. sturmrelevante Features** (Rolling Windows, Druckabfall, Windanomalien etc.) und schreibt die Ergebnisse optional in einen **Hopsworks Feature Store**.
 
-### Vorgehen
+### 1.3. Vorgehen
 * Das gesamte Vorgehen orientiert sich an der **FTI-Architektur** (Feature – Training – Inference).
 
-#### Pipeline 1: Feature Pipeline
+#### 1.3.1. Pipeline 1: Feature Pipeline
 * Datenbeschaffung
   * Geeignete Wetterdaten über die **Open-Meteo-API** beziehen
   * Relevanten Zeitraum und Standorte definieren
@@ -66,32 +66,32 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
   * Aufbereitete Features in einem **Hopsworks Feature Store** speichern
   * Wiederverwendbarkeit für Training und Inferenz sicherstellen
 
-#### Pipeline 2: Training Pipeline
+#### 1.3.2. Pipeline 2: Training Pipeline
 * Modelltraining & Evaluation
   * Machine-Learning-Modell trainieren
   * Modellqualität mit geeigneten Metriken bewerten (z. B. Precision, Recall, F1-Score)
 
-#### Pipeline 3: Inference Pipeline
+#### 1.3.3. Pipeline 3: Inference Pipeline
 * Inferenzpipeline
   * Pipeline zur Verarbeitung neuer Wetterdaten aufbauen
   * Unwetterprognosen in Echtzeit oder nahezu Echtzeit erstellen
 ---
 
-## Projekt-Dokumentation
+## 2. Projekt-Dokumentation
 
-### 1. Datenquelle
+### 2.1. Datenquelle
 * Data Source: Open-Meteo Weather API
 * Quelle: [https://open-meteo.com/](https://open-meteo.com/)
 
-### 2. Auswahl von Target & Features
+### 2.2. Auswahl von Target & Features
 
    * Druckänderung (Δp, 3h) | Luftdruck jetzt − Luftdruck vor 3h | Starker Abfall = Hinweis auf Sturm/Unwetter |
-#### Target
+#### 2.2.1. Target
 > „Als Mitarbeiter der Mobiliar sehe ich in präzisen Kurzfrist-Prognosen zu Unwetterwarnungen einen entscheidenden Baustein für eine wirksame Risikoprävention."
 
-#### Features
+#### 2.2.2. Features
 
-##### Meteorologisch (Aktuell)
+##### 2.2.2.1. Meteorologisch (Aktuell)
 | Feature Name | Datentyp | Beschreibung |
 | :--- | :--- | :--- |
 | `temperature_2m` | Float | Lufttemperatur in 2 m Höhe (°C) |
@@ -100,13 +100,13 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 | `wind_speed_10m` | Float | Windgeschwindigkeit in 10 m Höhe (km/h) |
 | `precipitation` | Float | Niederschlag der letzten Stunde (mm) |
 
-##### Historische Trends (Lags)
+##### 2.2.2.2. Historische Trends (Lags)
 | Feature Name | Datentyp | Beschreibung |
 | :--- | :--- | :--- |
 | `temp_lag_24h` | Float | Temperatur exakt vor 24 Stunden |
 | `temp_rolling_avg_7d` | Float | Gleitender Mittelwert der Temperatur (letzte 7 Tage) |
 
-##### Zeit & Saison (Cyclic Features)
+##### 2.2.2.3. Zeit & Saison (Cyclic Features)
 | Feature Name | Datentyp | Beschreibung |
 | :--- | :--- | :--- |
 | `day_of_year_sin` / `day_of_year_cos` | Float | Sinus-/Kosinus-Transformation des Jahrestags (Saisonalität) |
@@ -117,17 +117,17 @@ Hinweis: Die oben geplanten zyklischen Zeitfeatures sowie `temp_lag_24h` und
 die in der Feature-Pipeline berechneten Rolling-Summen, Rolling-Maxima, Druckänderungen und
 Windanomalien.
 
-### 3. GitHub-Repository
+### 2.3. GitHub-Repository
 * Account: `Mein Account`
 * Projektname: `fhnw_cas_aiops_project1_weather_forecasts`
 
-### 4. Hopsworks-Projekt
+### 2.4. Hopsworks-Projekt
 * Account: `Mein Account`
 * Name: `fhnw_p1_weather_forecasts`
 * Link: https://eu-west.cloud.hopsworks.ai/p/44167/view
 * **Bemerkung:** Ich wollte eigentlich den Namen `fhnw_cas_aiops_project1_weather_forecasts` überall durchziehen, die Namenslänge war bei Hopsworks jedoch eingeschränkt.
 
-### 5. Dependencies
+### 2.5. Dependencies
 * Name der virtuellen Umgebung: `fhnw_p1_weather_forecasts`
 * Prüfung der Python-Version (Python < 3.13): `python --version`
 * **Bemerkung:** Installierte Python-Version: 3.12.3
@@ -139,16 +139,16 @@ Windanomalien.
   pip install -r requirements.txt
   ```
 
-Die Inference-Pipeline verwendet standardmässig automatisch die neueste Version
+Die Inference-Pipeline ermittelt standardmässig die höchste vorhandene Version
 von `severe_weather_classifier` aus der Hopsworks Model Registry. Für einen
 reproduzierbaren Lauf mit einer bestimmten Version kann in `.env` optional
-`HOPSWORKS_MODEL_VERSION=15` gesetzt werden. Nach einem neuen Training ist keine
+`HOPSWORKS_MODEL_VERSION=16` gesetzt werden. Nach einem neuen Training ist keine
 Anpassung des Inference-Notebooks erforderlich.
 
-### 6. Feature-Pipeline
+### 2.6. Feature-Pipeline
 * Vorgehen: Die Feature Pipeline wurde Schritt für Schritt aufgebaut, wobei pro Task ein eigener Code-Teil erstellt wurde.
 
-#### Definitionen
+#### 2.6.1. Definitionen
 *	7 vergangene Tage (past_days=7)
 *	1 zusätzlicher Prognosetag (forecast_days=1)
 *	Stündliche Wetterdaten
@@ -159,18 +159,18 @@ Anpassung des Inference-Notebooks erforderlich.
   *	München, Breitengrad: 48.1351, Längengrad: 11.5820
   * Hamburg, Breitengrad: 53.5511, Längengrad: 9.9937
 * Ordnername: `Feature Pipeline`
-* Name Jupier-Notebook: `feature_pipeline.ipynb`
+* Name Jupyter-Notebook: `feature_pipeline.ipynb`
 
-#### 6.1. Hopsworks-Projektverbindungsskript
+#### 2.6.2. Hopsworks-Projektverbindungsskript
 * Einbau eines sicheren Ladens des API-Keys mit einer `.env`-Datei
 * Installation von Hopsworks: `pip install hopsworks`
 * **Bemerkung:** Die Verbindung zu Hopsworks aus Codespaces gestaltete sich schwierig. Die Ursache war ein fehlendes Paket: `pyarrow` (dieses fehlte zunächst und verursachte Verbindungsprobleme).
 
-#### 6.2. Rohdaten via API abrufen
+#### 2.6.3. Rohdaten via API abrufen
 * Datenquelle: `url = "https://api.open-meteo.com/v1/forecast"`
 * **Bemerkung:** Sicheres Laden des API-Keys über eine `.env`-Datei mittels `python-dotenv` eingerichtet.
 
-#### 6.3. Feature Engineering
+#### 2.6.4. Feature Engineering
 * Features, welche für die Unwetter-Prognosen entscheidend sind:
     * Druckabfall (Vorbote für Stürme)
     * Windböen-Anomalien
@@ -188,14 +188,14 @@ Anpassung des Inference-Notebooks erforderlich.
 | Delta/Differenz | Aktueller Wert − Rolling Mean | Zeigt Abweichung vom "normalen" Trend |
 | Druckänderung (Δp, 3h) | Luftdruck jetzt − Luftdruck vor 3h | Starker Abfall = Hinweis auf Sturm/Unwetter |
 
-#### 6.4. Dataframe und Labels
+#### 2.6.5. Dataframe und Labels
 * Dieses Modul erstellt aus einem Feature-DataFrame (`df`) den **finalen Datensatz** für Training/Inference bzw. für den Upload in ein Feature-Store-System.
 * Die Funktion `build_final_dataframe(df)`:
   * selektiert relevante Feature- und Label-Spalten
   * erzeugt einen **Primary Key**: `event_id`
   * setzt die **Event Time**: `event_time`
 
-#### 6.5. Feature Group erstellen und Daten hochladen
+#### 2.6.6. Feature Group erstellen und Daten hochladen
 * Dieser Code erstellt eine **Hopsworks Feature Group** und lädt den vorbereiteten `final_df`-Datensatz anschliessend in diese hoch.
 * Details der Feature-Group:
 
@@ -209,7 +209,7 @@ Anpassung des Inference-Notebooks erforderlich.
 | Stream | `True` | Ermöglicht Streaming-Inserts (z. B. via Kafka) |
 | Description | `"Stündliche Wetterfeatures für die Unwetterprognose"` | Beschreibungstext in der UI |
 
-#### 6.6. Feature-Pipeline
+#### 2.6.7. Feature-Pipeline
 Die Funktion `run_feature_pipeline` bildet den zentralen Baustein der Feature-Pipeline. Sie ruft für jede definierte Location Wetterdaten ab, führt das Feature Engineering durch und lädt die Daten optional in den Hopsworks Feature Store hoch.
 
 **Ablauf der Funktion:**
@@ -245,12 +245,12 @@ Die Funktion `run_feature_pipeline` bildet den zentralen Baustein der Feature-Pi
 **Hinweis zur Nutzung im Notebook:**
 Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die Feature Group bereits in einer vorherigen Zelle befüllt wurde. Dies ermöglicht eine End-to-End-Prüfung der Pipeline ohne erneuten Upload der Daten.
 
-### 7. Trainings-Pipeline
-#### Definitionen
+### 2.7. Trainings-Pipeline
+#### 2.7.1. Definitionen
 * Ordnername: `Training Pipeline`
-* Name Jupier-Notebook: `training_pipeline.ipynb`
+* Name Jupyter-Notebook: `training_pipeline.ipynb`
 
-#### 7.1. Feature Group laden
+#### 2.7.2. Feature Group laden
 * Login bei Hopsworks über `hopsworks.login()`
   * Laden der `.env`-Datei mit den Zugangsdaten
   * Auslesen von API-Key und Projektname aus den Umgebungsvariablen
@@ -259,7 +259,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Ausgabe von Name, Version und Anzahl Features zur Bestätigung
 * Bestehende Feature Group `weather_features_batch` 
 
-#### 7.2. Feature View erstellen (Query mit Features + Label)
+#### 2.7.3. Feature View erstellen (Query mit Features + Label)
 * Definiert eine Liste von 22 Feature-Spalten (u. a. Temperatur, Luftfeuchtigkeit, Druck, Wind, rollende Fenster-Aggregationen) sowie die Ziel-/Label-Spalte `is_severe_weather`
 * Prüft anhand der verfügbaren Spalten in `weather_fg`, ob alle benötigten Features und das Label tatsächlich vorhanden sind
 * Löst bei fehlenden Spalten einen `ValueError` mit genauer Auflistung aus, um inkonsistente Feature Views zu verhindern
@@ -269,7 +269,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Ermöglicht durch den Feature View eine reproduzierbare und versionierte Grundlage für Trainings- und Testdatensätze
 * Gibt nach erfolgreicher Erstellung Name und Version des Feature Views zur Bestätigung aus
 
-#### 7.3. Modell trainieren und evaluieren
+#### 2.7.4. Modell trainieren und evaluieren
 * Erstellt aus dem Feature View `severe_weather_fv` einen versionierten Trainingsdatensatz im CSV-Format über `create_training_data()`
 * Lädt die Trainingsdaten (Features `X` und Label `y`) mittels `get_training_data()` und wandelt die Zielspalte `is_severe_weather` in einen numerischen, ganzzahligen Typ um
 * Teilt die Daten stratifiziert in Trainings- und Testset auf (80/20), um die Klassenverteilung in beiden Sets beizubehalten
@@ -279,7 +279,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Erstellt Vorhersagen auf dem Testset und wertet das Modell mittels `classification_report()` aus (Precision, Recall, F1-Score je Klasse)
 * Dient als zentraler Trainingsschritt der Trainings-Pipeline, um ein einsatzfähiges Klassifikationsmodell für Unwetterereignisse zu erzeugen
 
-#### 7.4. Modell evaluieren
+#### 2.7.5. Modell evaluieren
 * Erstellt Vorhersagen (`y_pred`) sowie Wahrscheinlichkeiten (`y_pred_proba`) für die positive Klasse auf Basis des Testsets
 * Gibt einen ausführlichen `classification_report` mit Precision, Recall und F1-Score für die Klassen "Kein Unwetter" und "Unwetter" aus
 * Berechnet den F1-Score als zusammenfassende Kennzahl zur Bewertung der Modellgüte bei unausgeglichenen Klassen
@@ -290,7 +290,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Speichert die Confusion-Matrix-Grafik als PNG-Datei (`confusion_matrix.png`) zur Dokumentation der Modellleistung
 * Dient als abschliessender Evaluationsschritt, um die Eignung des Modells für die Unwettererkennung nachvollziehbar zu belegen
 
-#### 7.5. Feature Importance
+#### 2.7.6. Feature Importance
 * Berechnet die Wichtigkeit jedes Features anhand von `model.feature_importances_`
 * Sortiert die Features absteigend nach ihrer Relevanz für das Modell
 * Gibt die Top 10 wichtigsten Features in der Konsole aus
@@ -298,7 +298,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Speichert die Grafik als `feature_importance.png` zur Dokumentation
 * Unterstützt die Interpretierbarkeit des Modells im Rahmen der Trainings-Pipeline
 
-#### 7.6. Modell speichern und Metriken für die Model Registry vorbereiten
+#### 2.7.7. Modell speichern und Metriken für die Model Registry vorbereiten
 * Legt ein lokales Verzeichnis `severe_weather_model` zur Ablage von Modell und Metriken an
 * Speichert das trainierte Modell mittels `joblib` als `model.joblib`
 * Sammelt relevante Kennzahlen wie F1-Score, Anzahl Trainings- und Testdaten sowie den Anteil positiver Klassen
@@ -307,7 +307,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Speichert die Metriken strukturiert als `metrics.json`-Datei
 * Bereitet damit Modell und Metriken für eine spätere Registrierung in der Model Registry vor
 
-#### 7.7.Upload in Hopsworks Model Registry
+#### 2.7.8. Upload in Hopsworks Model Registry
 * Ruft die Model Registry des Hopsworks-Projekts über `project.get_model_registry()` ab
 * Definiert Input- und Output-Schema anhand der Trainingsdaten zur Dokumentation und Validierung
 * Kombiniert beide Schemas in einem `ModelSchema` für eine vollständige Modellbeschreibung
@@ -316,16 +316,16 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Lädt das lokal gespeicherte Modellverzeichnis in die Model Registry hoch
 * Gibt nach erfolgreichem Upload Name, Version und Model-ID zur Bestätigung aus
 
-### 8. Infernece-Pipline
-#### Definitionen
+### 2.8. Inference-Pipeline
+#### 2.8.1. Definitionen
 * 1 vergangener Tag für die Rolling-Window-Berechnung
 *	3 Prognosetage (forecast_days=3)
 *	Stündliche Live-Wetterdaten
 *	Zeitzone: UTC
 * Ordnername: `Inference Pipeline`
-* Name Jupier-Notebook: `feature_inference.ipynb`
+* Name Jupyter-Notebook: `feature_inference.ipynb`
 
-#### 8.1. Hopsworks Feature Group laden
+#### 2.8.2. Hopsworks Feature Group laden
 * Login bei Hopsworks über `hopsworks.login()`
   * Laden der `.env`-Datei mit den Zugangsdaten
   * Auslesen von API-Key und Projektname aus den Umgebungsvariablen
@@ -334,7 +334,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Validiert, ob die Feature Group erfolgreich geladen wurde, und bricht andernfalls ab
 * Bestätigt den erfolgreichen Ladevorgang mit Name und Version der Feature Group
 
-#### 8.2. Live-Daten abrufen (Forecast von Open-Meteo)
+#### 2.8.3. Live-Daten abrufen (Forecast von Open-Meteo)
 * Definiert die Funktion `fetch_live_forecast`, um aktuelle Wetterdaten sowie eine 3-Tage-Vorhersage von der Open-Meteo API abzurufen
 * Fragt relevante stündliche Wetterparameter ab, darunter Temperatur, Luftfeuchtigkeit, Niederschlag, Druck, Wind und CAPE
 * Berücksichtigt zusätzlich einen Tag in der Vergangenheit (`past_days`), um Rolling-Window-Berechnungen zu ermöglichen
@@ -343,7 +343,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Gibt die Anzahl geladener Datenpunkte pro Standort zur Kontrolle aus
 * Definiert die Standorte München und Hamburg mit ihren jeweiligen Koordinaten als Beispiel für die Live-Abfrage
 
-#### 8.3. User-Input für Ad-hoc-Abfrage (Optional)
+#### 2.8.4. User-Input für Ad-hoc-Abfrage (Optional)
 * Definiert die Funktion `get_user_location_input`, um eine benutzerdefinierte Standortabfrage zu ermöglichen
 * Fragt Breiten- und Längengrad interaktiv über die Konsole ab
 * Erfasst zusätzlich einen frei wählbaren Ortsnamen zur besseren Zuordnung
@@ -351,14 +351,14 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Gibt die eingegebenen Standortdaten als strukturiertes Dictionary zurück
 * Ermöglicht dadurch flexible Ad-hoc-Abfragen für beliebige Standorte ausserhalb der vordefinierten Liste
 
-#### 8.4. Real-Time Modus (Online Feature Store)
+#### 2.8.5. Real-Time Modus (Online Feature Store)
 * Ruft die aktuelle Open-Meteo-Abfrage über `fetch_live_forecast()` tatsächlich auf
 * Berechnet aus den Live-Daten dieselben Rolling-, Druck- und Anomalie-Features wie die Feature-Pipeline
 * Wählt den aktuellen bzw. nächsten verfügbaren Zeitpunkt aus und erstellt daraus einen Feature-Vektor
 * Verwendet diesen Live-Feature-Vektor direkt für die Prediction
 * Der Featurestore bleibt die Quelle für historische Batch-Features und das Training; das aktuelle Feature wird zur Inferenzzeit aus der API bezogen
 
-#### 8.5. Modell aus der Model Registry herunterladen
+#### 2.8.6. Modell aus der Model Registry herunterladen
 * Greift über `project.get_model_registry()` auf die Hopsworks Model Registry zu
 * Ruft das Modell `severe_weather_classifier` in der angegebenen Version ab (alternativ automatisch die neueste Version)
 * Lädt das zugehörige Modellverzeichnis lokal über `model_meta.download()` herunter
@@ -367,7 +367,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Gibt Name und Version des geladenen Modells zur Kontrolle aus
 * Zeigt die im Model Registry gespeicherten Trainings-Metriken zur Nachvollziehbarkeit an
 
-#### 8.6. Real-Time Single Prediction
+#### 2.8.7. Real-Time Single Prediction
 * Definiert die Funktion `run_realtime_prediction`, um für einen einzelnen Feature-Vektor eine Echtzeit-Vorhersage durchzuführen
 * Ermittelt die vom Modell erwarteten Feature-Namen über `feature_names_in_` oder alternativ über den XGBoost-Booster
 * Prüft, ob alle vom Modell benötigten Features im übergebenen Feature-Vektor vorhanden sind, und bricht bei fehlenden Werten mit `KeyError` ab
@@ -378,7 +378,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Führt die Funktion beispielhaft mit dem zuvor geladenen Live-Feature-Vektor aus und gibt das Resultat aus
 ---
 
-## Persönliche Konklusion
+## 3. Persönliche Konklusion
 * Durch dieses Projekt konnte ich die FTI-Architektur mit den drei Bereichen **Feature, Training und Inference** praktisch umsetzen und besser verstehen.
 * Ich habe gelernt, wie Wetterdaten über eine API abgerufen, aufbereitet und für ein Machine-Learning-Modell weiterverwendet werden können.
 * Besonders interessant war für mich das Feature Engineering mit Rolling Windows, Druckveränderungen, Windanomalien und Niederschlagssummen.
@@ -390,7 +390,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Die Modellqualität stand in dieser Arbeit nicht im Vordergrund. Trotzdem konnte ich den vollständigen Ablauf von der Datenbeschaffung bis zur Unwetterprognose realisieren.
 * Als mögliche Weiterentwicklung sehe ich die Verwendung historischer Unwetterdaten, eine genauere Definition des Targets und eine grössere Anzahl an Standorten, um das Modell realistischer zu trainieren.
 
-### Limitationen und Ausführungshinweise
+### 3.1. Limitationen und Ausführungshinweise
 * Das Target wird aus heuristischen Wetter-Schwellenwerten erzeugt und ist kein extern validiertes
   Unwetterlabel. Die historischen Daten müssen mindestens eine positive und eine negative
   Labelklasse enthalten.

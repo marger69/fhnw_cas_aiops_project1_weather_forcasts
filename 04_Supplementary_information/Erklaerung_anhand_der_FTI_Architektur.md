@@ -34,7 +34,7 @@ Model Registry / model.joblib
       ↓
 Inference Pipeline
       ↓
-Realtime Prediction / Warning
+Real-Time Prediction / Warning
 ```
 
 ### 2.1 Feature

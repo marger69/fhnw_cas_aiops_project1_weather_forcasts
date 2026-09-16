@@ -47,8 +47,8 @@ Die wichtigsten Rohdatenfelder sind:
 - `surface_pressure`: Luftdruck auf Bodenhöhe
 - `cloud_cover`: Bewölkung
 - `wind_speed_10m`: Windgeschwindigkeit in 10 m Höhe
-- `wind_gusts_10m`: Windboeen in 10 m Höhe, direkt von Open-Meteo bezogen
-- `cape`: konvektiv verfuegbare potentielle Energie, in der Feature-Pipeline standardmaessig mit 0 ergaenzt, wenn sie nicht vorhanden ist
+- `wind_gusts_10m`: Windböen in 10 m Höhe, direkt von Open-Meteo bezogen
+- `cape`: konvektiv verfügbare potenzielle Energie, direkt von Open-Meteo bezogen und auf einen gültigen Wertebereich geprüft
 
 ### 2.2 Target
 
@@ -59,9 +59,9 @@ Das Target ist `is_severe_weather` mit zwei Klassen:
 
 Das Target ist kein extern gemessenes oder amtliches Warnlabel. Es wird in der Feature-Pipeline heuristisch aus Wettermerkmalen erzeugt:
 
-- Windboeen ueber 40 km/h
-- Niederschlagssumme der letzten drei Stunden ueber 10 mm
-- Druckaenderung pro Stunde unter -0.75 hPa
+- Windböen über 40 km/h
+- Niederschlagssumme der letzten drei Stunden über 10 mm
+- Druckänderung pro Stunde unter -0.75 hPa
 
 Sobald mindestens eine Bedingung erfuellt ist, wird das Label auf `1` gesetzt.
 
@@ -70,7 +70,7 @@ Sobald mindestens eine Bedingung erfuellt ist, wird das Label auf `1` gesetzt.
 Die Pipeline berechnet zwei Arten von Merkmalen:
 
 1. **Aktuelle beziehungsweise meteorologische Merkmale** wie Temperatur, Luftfeuchtigkeit, Niederschlag, Druck und Wind.
-2. **Zeit- und verlaufsbezogene Merkmale** wie Rolling-Summen, Rolling-Maxima, gleitende Druckmittelwerte, Druckaenderungen, Windanomalien und Temperaturveraenderungen.
+2. **Zeit- und verlaufsbezogene Merkmale** wie Rolling-Summen, Rolling-Maxima, gleitende Druckmittelwerte, Druckänderungen, Windanomalien und Temperaturveränderungen.
 
 Konkrete Modell-Features sind:
 
@@ -109,9 +109,9 @@ Die Pipeline besteht aus folgenden Schritten:
 
 1. Verbindung mit Hopsworks über `HOPSWORKS_API_KEY` und `HOPSWORKS_PROJECT_NAME`.
 2. Abruf der stündlichen Wetterdaten über Open-Meteo.
-3. Zusammenfuehren der Daten fuer München und Hamburg.
+3. Zusammenführen der Daten für München und Hamburg.
 4. Sortieren nach Standort und Zeit.
-5. Bereinigung der Rohdaten: Zeitduplikate werden entfernt, physikalisch ungueltige Werte als fehlend markiert und fehlende Werte innerhalb des Standorts interpoliert oder mit dem Standortmedian ergaenzt.
+5. Bereinigung der Rohdaten: Zeitduplikate werden entfernt, physikalisch ungültige Werte als fehlend markiert und fehlende Werte innerhalb des Standorts interpoliert oder mit dem Standortmedian ergänzt.
 6. Berechnung der Rolling- und Änderungsfeatures.
 7. Erzeugung des heuristischen Targets `is_severe_weather`.
 8. Entfernung der ersten unvollständigen Zeilen, für die notwendige Änderungsfeatures noch nicht berechnet werden können.
@@ -167,16 +167,17 @@ Datei: [03_Inference_Pipeline/inference_pipeline.ipynb](../03_Inference_Pipeline
 
 Die Inference-Pipeline arbeitet in diesen Schritten:
 
-1. Anmeldung an Hopsworks und Laden der Feature Group als Projektkontext.
+1. Anmeldung an Hopsworks und Laden der Feature Group sowie der versionierten Feature View.
 2. Abruf aktueller Wetterdaten und eines kurzen Forecasts von Open-Meteo, einschliesslich `wind_gusts_10m`.
 3. Anwendung derselben Duplikat-, Wertebereichs- und Missing-Value-Bereinigung wie in der Feature-Pipeline.
-4. Berechnung derselben Rolling-, Druck- und Anomaliefeatures wie beim Training.
-5. Auswahl des aktuellen beziehungsweise nächsten verfügbaren Zeitpunkts.
-6. Herunterladen des Modells `severe_weather_classifier` aus der Model Registry.
-7. Laden der Datei `model.joblib`.
-8. Prüfung, ob der Live-Feature-Vektor alle vom Modell erwarteten Feature-Namen enthält.
-9. Berechnung der Sturmwahrscheinlichkeit mit `predict_proba`.
-10. Ableitung von Warnstatus und Risikostufe.
+4. Laden der neuesten gespeicherten Batch-Features über die Feature View.
+5. Berechnung derselben Rolling-, Druck- und Anomaliefeatures wie beim Training für die aktuellen Live-Daten.
+6. Auswahl des aktuellen beziehungsweise nächsten verfügbaren Zeitpunkts.
+7. Ermitteln der höchsten Modellversion aus der Model Registry oder Laden einer über `HOPSWORKS_MODEL_VERSION` festgelegten Version.
+8. Laden der Datei `model.joblib`.
+9. Prüfung, ob der Live-Feature-Vektor alle vom Modell erwarteten Feature-Namen enthält.
+10. Berechnung der Sturmwahrscheinlichkeit mit `predict_proba`.
+11. Ableitung von Warnstatus und Risikostufe.
 
 Die Warnschwelle ist standardmässig `0.3`. Eine Wahrscheinlichkeit ab dieser Schwelle erzeugt `storm_warning=True`; ab `0.6` wird zusätzlich die Risikostufe `HOCH` ausgegeben.
 
@@ -297,13 +298,13 @@ Notebook öffnen:
 
 [03_Inference_Pipeline/inference_pipeline.ipynb](../03_Inference_Pipeline/inference_pipeline.ipynb)
 
-Alle Zellen der Reihe nach ausführen. Die Zelle zum Laden des Modells verwendet standardmässig automatisch die neueste Registry-Version. Für einen reproduzierbaren Lauf mit einer bestimmten Modellversion kann vor dem Start optional `HOPSWORKS_MODEL_VERSION` in `.env` gesetzt werden, zum Beispiel:
+Alle Zellen der Reihe nach ausführen. Die Zelle zum Laden des Modells ermittelt standardmässig die höchste vorhandene Registry-Version. Für einen reproduzierbaren Lauf mit einer bestimmten Modellversion kann vor dem Start optional `HOPSWORKS_MODEL_VERSION` in `.env` gesetzt werden, zum Beispiel:
 
 ```dotenv
-HOPSWORKS_MODEL_VERSION=15
+HOPSWORKS_MODEL_VERSION=16
 ```
 
-Nach einem neuen Training ist dadurch keine Notebook-Anpassung erforderlich; ohne gesetzte Variable wird die aktuellste Version verwendet.
+Nach einem neuen Training ist dadurch keine Notebook-Anpassung erforderlich; ohne gesetzte Variable wird die höchste vorhandene Version verwendet.
 
 Erwartetes Ergebnis:
 
@@ -345,7 +346,7 @@ Zusätzlich sollte geprüft werden:
 - Die aktuelle Inference berechnet den Live-Feature-Vektor direkt aus der API und liest nicht den aktuellen Featurevektor aus dem Feature Store.
 - Der Train-Test-Split ist zufallsbasiert. Für eine echte Zeitreihenprognose wäre ein zeitlicher Holdout geeigneter.
 - Die direkten Paketversionen sind in `requirements.txt` gepinnt. Für vollständig identische Umgebungen können bei plattformabhängigen Paketen dennoch Unterschiede der transitive Abhängigkeiten auftreten.
-- Die Inference verwendet standardmässig die neueste Modellversion. Mit `HOPSWORKS_MODEL_VERSION` kann eine konkrete Version für reproduzierbare historische Läufe festgelegt werden.
+- Die Inference ermittelt standardmässig die höchste vorhandene Modellversion. Mit `HOPSWORKS_MODEL_VERSION` kann eine konkrete Version für reproduzierbare historische Läufe festgelegt werden.
 - Für Hopsworks ist ein aktiver Account, ein Projekt und ein gültiger API-Key erforderlich.
 - Die API sowie Hopsworks müssen während der Ausführung erreichbar sein.
 
