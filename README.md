@@ -16,6 +16,7 @@
 * Inference Pipeline: [03_Inference_Pipeline/inference_pipeline.ipynb](03_Inference_Pipeline/inference_pipeline.ipynb)
 * Modell: [02_Trainings_Pipeline/severe_weather_model/model.joblib](02_Trainings_Pipeline/severe_weather_model/model.joblib)
 * Metriken: [02_Trainings_Pipeline/severe_weather_model/metrics.json](02_Trainings_Pipeline/severe_weather_model/metrics.json)
+* Requierments: [requirements.txt](requirements.txt)
 
 ## Aufgabenstellung
 Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-Inference) und Feature Store zu vertiefen. Dazu sollen drei Pipelines implementiert werden.
@@ -130,12 +131,19 @@ Windanomalien.
 * Name der virtuellen Umgebung: `fhnw_p1_weather_forecasts`
 * Prüfung der Python-Version (Python < 3.13): `python --version`
 * **Bemerkung:** Installierte Python-Version: 3.12.3
+* Die direkten Projektabhängigkeiten sind in [requirements.txt](requirements.txt) mit exakten Versionen festgelegt. `pyarrow` ist explizit enthalten, da es für die Hopsworks-Anbindung benötigt wird.
 * Installation der Abhängigkeiten:
   ```bash
   python -m venv .venv
   source .venv/bin/activate
   pip install -r requirements.txt
   ```
+
+Die Inference-Pipeline verwendet standardmässig automatisch die neueste Version
+von `severe_weather_classifier` aus der Hopsworks Model Registry. Für einen
+reproduzierbaren Lauf mit einer bestimmten Version kann in `.env` optional
+`HOPSWORKS_MODEL_VERSION=15` gesetzt werden. Nach einem neuen Training ist keine
+Anpassung des Inference-Notebooks erforderlich.
 
 ### 6. Feature-Pipeline
 * Vorgehen: Die Feature Pipeline wurde Schritt für Schritt aufgebaut, wobei pro Task ein eigener Code-Teil erstellt wurde.

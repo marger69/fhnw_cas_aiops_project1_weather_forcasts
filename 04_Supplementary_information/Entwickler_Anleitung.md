@@ -226,7 +226,7 @@ Die direkten Abhängigkeiten sind in [requirements.txt](../requirements.txt) def
 - `joblib`: Speichern und Laden des Modells
 - `matplotlib` und `seaborn`: Visualisierung der Evaluation
 
-Die Datei enthält derzeit keine exakten Versions-Pins. Für eine vollständig bitgenaue Reproduktion sollte zusätzlich eine Exportdatei wie `pip freeze` aus der funktionierenden Python-3.12-Umgebung archiviert werden. Hopsworks kann ausserdem transitive Abhängigkeiten wie `pyarrow` benoetigen.
+Die direkten Projektabhängigkeiten sind in `requirements.txt` exakt auf die im Projekt verwendeten Versionen gepinnt. Dazu gehört auch `pyarrow`, das für Hopsworks benötigt wird. Die Python-Version muss weiterhin Python 3.12.x sein; Betriebssystem- und Plattformunterschiede können bei binären Paketen trotzdem abweichende transitive Abhängigkeiten verursachen.
 
 ## 7. Zugangsdaten und Konfiguration
 
@@ -295,7 +295,13 @@ Notebook öffnen:
 
 [03_Inference_Pipeline/inference_pipeline.ipynb](../03_Inference_Pipeline/inference_pipeline.ipynb)
 
-Alle Zellen der Reihe nach ausführen. Die Zelle zum Laden des Modells verwendet aktuell eine konkrete Modellversion. Falls nach einem neuen Training eine andere Registry-Version entsteht, muss dieser Wert auf die gewünschte Version angepasst werden.
+Alle Zellen der Reihe nach ausführen. Die Zelle zum Laden des Modells verwendet standardmässig automatisch die neueste Registry-Version. Für einen reproduzierbaren Lauf mit einer bestimmten Modellversion kann vor dem Start optional `HOPSWORKS_MODEL_VERSION` in `.env` gesetzt werden, zum Beispiel:
+
+```dotenv
+HOPSWORKS_MODEL_VERSION=15
+```
+
+Nach einem neuen Training ist dadurch keine Notebook-Anpassung erforderlich; ohne gesetzte Variable wird die aktuellste Version verwendet.
 
 Erwartetes Ergebnis:
 
@@ -336,8 +342,8 @@ Zusätzlich sollte geprüft werden:
 - Die Daten werden bei jedem API-Abruf aktualisiert; dadurch können sich Ergebnisse und Labelverteilung verändern.
 - Die aktuelle Inference berechnet den Live-Feature-Vektor direkt aus der API und liest nicht den aktuellen Featurevektor aus dem Feature Store.
 - Der Train-Test-Split ist zufallsbasiert. Für eine echte Zeitreihenprognose wäre ein zeitlicher Holdout geeigneter.
-- Die Paketversionen sind in `requirements.txt` nicht gepinnt.
-- Die Inference referenziert aktuell eine konkrete Modellversion. Nach einem neuen Training muss die Version geprüft werden.
+- Die direkten Paketversionen sind in `requirements.txt` gepinnt. Für vollständig identische Umgebungen können bei plattformabhängigen Paketen dennoch Unterschiede der transitive Abhängigkeiten auftreten.
+- Die Inference verwendet standardmässig die neueste Modellversion. Mit `HOPSWORKS_MODEL_VERSION` kann eine konkrete Version für reproduzierbare historische Läufe festgelegt werden.
 - Für Hopsworks ist ein aktiver Account, ein Projekt und ein gültiger API-Key erforderlich.
 - Die API sowie Hopsworks müssen während der Ausführung erreichbar sein.
 
