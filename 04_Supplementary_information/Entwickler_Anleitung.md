@@ -47,7 +47,7 @@ Die wichtigsten Rohdatenfelder sind:
 - `surface_pressure`: Luftdruck auf Bodenhöhe
 - `cloud_cover`: Bewölkung
 - `wind_speed_10m`: Windgeschwindigkeit in 10 m Höhe
-- `wind_gusts_10m`: Windboeen, in der Feature-Pipeline ersatzweise aus `wind_speed_10m` abgeleitet
+- `wind_gusts_10m`: Windboeen in 10 m Höhe, direkt von Open-Meteo bezogen
 - `cape`: konvektiv verfuegbare potentielle Energie, in der Feature-Pipeline standardmaessig mit 0 ergaenzt, wenn sie nicht vorhanden ist
 
 ### 2.2 Target
@@ -111,11 +111,12 @@ Die Pipeline besteht aus folgenden Schritten:
 2. Abruf der stündlichen Wetterdaten über Open-Meteo.
 3. Zusammenfuehren der Daten fuer München und Hamburg.
 4. Sortieren nach Standort und Zeit.
-5. Berechnung der Rolling- und Änderungsfeatures.
-6. Erzeugung des heuristischen Targets `is_severe_weather`.
-7. Entfernung der ersten unvollständigen Zeilen, für die notwendige Änderungsfeatures noch nicht berechnet werden können.
-8. Erzeugung der eindeutigen ID `event_id` und des Zeitfelds `event_time`.
-9. Upload in die Hopsworks Feature Group `weather_features_batch`, Version `1`.
+5. Bereinigung der Rohdaten: Zeitduplikate werden entfernt, physikalisch ungueltige Werte als fehlend markiert und fehlende Werte innerhalb des Standorts interpoliert oder mit dem Standortmedian ergaenzt.
+6. Berechnung der Rolling- und Änderungsfeatures.
+7. Erzeugung des heuristischen Targets `is_severe_weather`.
+8. Entfernung der ersten unvollständigen Zeilen, für die notwendige Änderungsfeatures noch nicht berechnet werden können.
+9. Erzeugung der eindeutigen ID `event_id` und des Zeitfelds `event_time`.
+10. Upload in die Hopsworks Feature Group `weather_features_batch`, Version `1`.
 
 Die Feature Group verwendet `event_id` als Primary Key und `event_time` als Event Time. Dadurch stehen die berechneten Features zentral und versioniert für die Trainings-Pipeline zur Verfügung.
 
@@ -167,14 +168,15 @@ Datei: [03_Inference_Pipeline/inference_pipeline.ipynb](../03_Inference_Pipeline
 Die Inference-Pipeline arbeitet in diesen Schritten:
 
 1. Anmeldung an Hopsworks und Laden der Feature Group als Projektkontext.
-2. Abruf aktueller Wetterdaten und eines kurzen Forecasts von Open-Meteo.
-3. Berechnung derselben Rolling-, Druck- und Anomaliefeatures wie beim Training.
-4. Auswahl des aktuellen beziehungsweise nächsten verfügbaren Zeitpunkts.
-5. Herunterladen des Modells `severe_weather_classifier` aus der Model Registry.
-6. Laden der Datei `model.joblib`.
-7. Prüfung, ob der Live-Feature-Vektor alle vom Modell erwarteten Feature-Namen enthält.
-8. Berechnung der Sturmwahrscheinlichkeit mit `predict_proba`.
-9. Ableitung von Warnstatus und Risikostufe.
+2. Abruf aktueller Wetterdaten und eines kurzen Forecasts von Open-Meteo, einschliesslich `wind_gusts_10m`.
+3. Anwendung derselben Duplikat-, Wertebereichs- und Missing-Value-Bereinigung wie in der Feature-Pipeline.
+4. Berechnung derselben Rolling-, Druck- und Anomaliefeatures wie beim Training.
+5. Auswahl des aktuellen beziehungsweise nächsten verfügbaren Zeitpunkts.
+6. Herunterladen des Modells `severe_weather_classifier` aus der Model Registry.
+7. Laden der Datei `model.joblib`.
+8. Prüfung, ob der Live-Feature-Vektor alle vom Modell erwarteten Feature-Namen enthält.
+9. Berechnung der Sturmwahrscheinlichkeit mit `predict_proba`.
+10. Ableitung von Warnstatus und Risikostufe.
 
 Die Warnschwelle ist standardmässig `0.3`. Eine Wahrscheinlichkeit ab dieser Schwelle erzeugt `storm_warning=True`; ab `0.6` wird zusätzlich die Risikostufe `HOCH` ausgegeben.
 

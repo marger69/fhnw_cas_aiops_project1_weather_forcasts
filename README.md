@@ -175,6 +175,9 @@ Anpassung des Inference-Notebooks erforderlich.
     * Druckabfall (Vorbote für Stürme)
     * Windböen-Anomalien
     * Rolling Windows für Trends, siehe nachfolgende Tabelle
+* `wind_gusts_10m` wird in der Feature- und Inference-Pipeline direkt über das Open-Meteo-API-Feld bezogen.
+* Vor dem Feature Engineering werden Zeitduplikate entfernt, physikalisch ungültige Werte als fehlend markiert und fehlende numerische Werte innerhalb des Standorts interpoliert oder mit dem Standortmedian ergänzt.
+* Gültige Extremwerte, beispielsweise starke Windböen, werden nicht als statistische Ausreisser entfernt, da sie für die Unwetterklassifikation relevant sind.
 
 | Feature | Berechnung | Bedeutung |
 |---|---|---|
