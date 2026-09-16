@@ -17,6 +17,8 @@
 * Modell: [02_Trainings_Pipeline/severe_weather_model/model.joblib](02_Trainings_Pipeline/severe_weather_model/model.joblib)
 * Metriken: [02_Trainings_Pipeline/severe_weather_model/metrics.json](02_Trainings_Pipeline/severe_weather_model/metrics.json)
 * Requirements: [requirements.txt](requirements.txt)
+* Data Source Open-Meteo Weather API: [https://open-meteo.com/](https://open-meteo.com/)
+* Hopsworks-Projekt: [https://eu-west.cloud.hopsworks.ai/p/44167/view](https://eu-west.cloud.hopsworks.ai/p/44167/view)
 
 ## 1. Aufgabenstellung
 Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-Inference) und Feature Store zu vertiefen. Dazu sollen drei Pipelines implementiert werden.
