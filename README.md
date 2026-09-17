@@ -405,3 +405,10 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Ausführungsreihenfolge: zuerst `Feature Pipeline/feature_pipeline.ipynb` mit `upload=True`,
   danach `Trainings Pipeline/trainings_pipeline.ipynb` und zuletzt
   `Inference Pipeline/inference_pipeline.ipynb`.
+
+## 4. Schlusswort
+> * Als Architekt bin ich normalerweise eher Top-down unterwegs. Selbst programmiere ich nur noch YAML-Dateien in Git-Repositories sowie Architecture as Code mit Java. 
+> * Entsprechend gross war mein Respekt vor dieser Projektaufgabe, schliesslich durfte ich mich wieder einmal etwas näher an die Bits und Bytes heranwagen.
+> * Ich muss gestehen: Der Bottom-up-Ansatz hat mir enorm geholfen. So konnte ich mich intensiv mit dem Tooling auseinandersetzen und mir bewusst die Zeit nehmen, die Zusammenhänge wirklich zu verstehen, inklusive punktueller Unterstützung durch KI.
+> * Alles in allem war es eine sehr lehrreiche, spannende und rundum positive Erfahrung.
+> * Herzlichen Dank dafür! 🙏  
