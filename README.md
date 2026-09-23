@@ -88,9 +88,14 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 
 ### 2.2. Auswahl von Target & Features
 
-   * Druckänderung (Δp, 3h) | Luftdruck jetzt − Luftdruck vor 3h | Starker Abfall = Hinweis auf Sturm/Unwetter |
+* Vorhersage eines Sturm-/Unwetterereignisses etwa 3 Stunden vor dem tatsächlichen Einsetzen.
+* Druckänderung (Δp, 3h) | Luftdruck jetzt − Luftdruck vor 3h | Starker Abfall = Hinweis auf Sturm/Unwetter |
+
 #### 2.2.1. Target
-> „Als Mitarbeiter der Mobiliar sehe ich in präzisen Kurzfrist-Prognosen zu Unwetterwarnungen einen entscheidenden Baustein für eine wirksame Risikoprävention."
+> Als Mitarbeiter der Mobiliar sehe ich in präzisen Kurzfrist-Prognosen zu Unwetterwarnungen einen entscheidenden Baustein für eine wirksame Risikoprävention.
+>
+>
+> Das Ziel des Modells ist die Vorhersage eines Sturm-/Unwetterereignisses etwa 3 Stunden vor dem tatsächlichen Einsetzen. Dazu wird das heuristische Ereignislabel der Zielstunde um drei Stunden zurückverschoben. Das Label wird aus Wetterindikatoren wie starkem Druckabfall, Windböen-Anomalien und extremen Niederschlagsmengen abgeleitet und ist kein offiziell validiertes Warnlabel.
 
 #### 2.2.2. Features
 
@@ -152,16 +157,16 @@ Anpassung des Inference-Notebooks erforderlich.
 * Vorgehen: Die Feature Pipeline wurde Schritt für Schritt aufgebaut, wobei pro Task ein eigener Code-Teil erstellt wurde.
 
 #### 2.6.1. Definitionen
-*	7 vergangene Tage (past_days=7)
-*	1 zusätzlicher Prognosetag (forecast_days=1)
-*	Stündliche Wetterdaten
-*	Zeitzone: Europe/Berlin
-*	Insgesamt ungefähr 8 Tage Daten
+* 7 vergangene Tage (`past_days=7`)
+* 1 zusätzlicher Prognosetag (`forecast_days=1`)
+* Stündliche Wetterdaten
+* Zeitzone: Europe/Berlin
+* Insgesamt ungefähr 8 Tage Daten
 * Tatsächlicher aktueller Trainingslauf: 30 vergangene Tage (`past_days=30`), damit positive und negative Labels entstehen.
 * Definierte Standorte
-  *	München, Breitengrad: 48.1351, Längengrad: 11.5820
+  * München, Breitengrad: 48.1351, Längengrad: 11.5820
   * Hamburg, Breitengrad: 53.5511, Längengrad: 9.9937
-* Ordnername: `Feature Pipeline`
+* Ordnername: `01_Feature_Pipeline`
 * Name Jupyter-Notebook: `feature_pipeline.ipynb`
 
 #### 2.6.2. Hopsworks-Projektverbindungsskript
@@ -195,6 +200,7 @@ Anpassung des Inference-Notebooks erforderlich.
 * Dieses Modul erstellt aus einem Feature-DataFrame (`df`) den **finalen Datensatz** für Training/Inference bzw. für den Upload in ein Feature-Store-System.
 * Die Funktion `build_final_dataframe(df)`:
   * selektiert relevante Feature- und Label-Spalten
+  * setzt `is_severe_weather` auf `1`, wenn drei Stunden später ein heuristisches Sturm-/Unwetterereignis erwartet wird
   * erzeugt einen **Primary Key**: `event_id`
   * setzt die **Event Time**: `event_time`
 
@@ -250,8 +256,8 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 
 ### 2.7. Trainings-Pipeline
 #### 2.7.1. Definitionen
-* Ordnername: `Training Pipeline`
-* Name Jupyter-Notebook: `training_pipeline.ipynb`
+* Ordnername: `02_Trainings_Pipeline`
+* Name Jupyter-Notebook: `trainings_pipeline.ipynb`
 
 #### 2.7.2. Feature Group laden
 * Login bei Hopsworks über `hopsworks.login()`
@@ -305,6 +311,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Legt ein lokales Verzeichnis `severe_weather_model` zur Ablage von Modell und Metriken an
 * Speichert das trainierte Modell mittels `joblib` als `model.joblib`
 * Sammelt relevante Kennzahlen wie F1-Score, Anzahl Trainings- und Testdaten sowie den Anteil positiver Klassen
+* Speichert den Zielhorizont `forecast_horizon_hours=3` als Modellmetadatum
 * Prüft, ob der ROC-AUC-Wert definiert ist, und schliesst ihn nur bei Gültigkeit in die Metriken ein
 * Gibt eine Warnung aus, falls der ROC-AUC-Wert nicht bestimmbar ist
 * Speichert die Metriken strukturiert als `metrics.json`-Datei
@@ -322,11 +329,11 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 ### 2.8. Inference-Pipeline
 #### 2.8.1. Definitionen
 * 1 vergangener Tag für die Rolling-Window-Berechnung
-*	3 Prognosetage (forecast_days=3)
-*	Stündliche Live-Wetterdaten
-*	Zeitzone: UTC
-* Ordnername: `Inference Pipeline`
-* Name Jupyter-Notebook: `feature_inference.ipynb`
+* 3 Prognosetage (`forecast_days=3`)
+* Stündliche Live-Wetterdaten
+* Zeitzone: UTC
+* Ordnername: `03_Inference_Pipeline`
+* Name Jupyter-Notebook: `inference_pipeline.ipynb`
 
 #### 2.8.2. Hopsworks Feature Group laden
 * Login bei Hopsworks über `hopsworks.login()`
@@ -357,8 +364,8 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 #### 2.8.5. Real-Time Modus (Online Feature Store)
 * Ruft die aktuelle Open-Meteo-Abfrage über `fetch_live_forecast()` tatsächlich auf
 * Berechnet aus den Live-Daten dieselben Rolling-, Druck- und Anomalie-Features wie die Feature-Pipeline
-* Wählt den aktuellen bzw. nächsten verfügbaren Zeitpunkt aus und erstellt daraus einen Feature-Vektor
-* Verwendet diesen Live-Feature-Vektor direkt für die Prediction
+* Wählt den aktuellen bzw. nächsten verfügbaren Zeitpunkt als Ausgangspunkt und erstellt daraus einen Feature-Vektor
+* Verwendet diesen Live-Feature-Vektor direkt für die Prediction des Sturm-/Unwetterrisikos etwa drei Stunden später
 * Der Featurestore bleibt die Quelle für historische Batch-Features und das Training; das aktuelle Feature wird zur Inferenzzeit aus der API bezogen
 
 #### 2.8.6. Modell aus der Model Registry herunterladen
@@ -377,7 +384,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Baut aus dem Feature-Vektor einen `pandas.DataFrame` auf und wandelt alle Werte numerisch um
 * Berechnet die Sturmwahrscheinlichkeit mittels `model.predict_proba()` und leitet daraus eine binäre Sturmwarnung anhand eines Schwellenwerts ab
 * Klassifiziert das Risiko zusätzlich in die Stufen „HOCH“, „MITTEL“ oder „NIEDRIG“ zur besseren Interpretierbarkeit
-* Gibt das Ergebnis als strukturiertes Dictionary mit Wahrscheinlichkeit, Warnstatus und Risikostufe zurück
+* Gibt das Ergebnis als strukturiertes Dictionary mit Wahrscheinlichkeit, Warnstatus, Vorhersagehorizont von 3 Stunden, Beschreibung und Risikostufe zurück
 * Führt die Funktion beispielhaft mit dem zuvor geladenen Live-Feature-Vektor aus und gibt das Resultat aus
 ---
 
@@ -402,9 +409,9 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
   Feature- und Trainings-Pipeline erneut ausgeführt und das Modell neu registriert werden.
 * Das Training verwendet aktuell einen stratifizierten Zufallssplit. Für einen produktiven
   Wetterforecast wäre zusätzlich ein zeitlicher Holdout sinnvoll.
-* Ausführungsreihenfolge: zuerst `Feature Pipeline/feature_pipeline.ipynb` mit `upload=True`,
-  danach `Trainings Pipeline/trainings_pipeline.ipynb` und zuletzt
-  `Inference Pipeline/inference_pipeline.ipynb`.
+* Ausführungsreihenfolge: zuerst `01_Feature_Pipeline/feature_pipeline.ipynb` mit `upload=True`,
+  danach `02_Trainings_Pipeline/trainings_pipeline.ipynb` und zuletzt
+  `03_Inference_Pipeline/inference_pipeline.ipynb`.
 
 ## 4. Schlusswort
 > * Als Architekt bin ich normalerweise eher Top-down unterwegs. Selbst programmiere ich nur noch YAML-Dateien in Git-Repositories sowie Architecture as Code mit Java. 

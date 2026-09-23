@@ -23,7 +23,7 @@ XGBoost-Modell und Hopsworks Model Registry
 Inference-Pipeline und Unwetterwarnung
 ```
 
-Das Modell soll für einen aktuellen Wetterzeitpunkt eine Wahrscheinlichkeit für schweres Wetter beziehungsweise eine Sturmwarnung berechnen. Die Anwendung ist eine MLOps-Demonstration und kein produktives Warnsystem.
+Das Modell soll für einen aktuellen Wetterzeitpunkt die Wahrscheinlichkeit eines Sturm-/Unwetterereignisses etwa drei Stunden später berechnen. Die Anwendung ist eine MLOps-Demonstration und kein produktives Warnsystem.
 
 ## 2. Verwendete Daten
 
@@ -36,7 +36,7 @@ Die Daten werden über die [Open-Meteo Weather API](https://open-meteo.com/) bez
 | München | 48.1351 | 11.5820 |
 | Hamburg | 53.5511 | 9.9937 |
 
-Die Feature-Pipeline verwendet historische Daten und einen Forecast. Der im aktuellen Trainingslauf verwendete Abruf umfasst 30 vergangene Tage. Die Inference-Pipeline ruft einen Tag historische Daten sowie drei Forecast-Tage ab, damit die Rolling Features für einen aktuellen Zeitpunkt berechnet werden können.
+Die Feature-Pipeline verwendet historische Daten und einen Forecast. Der im aktuellen Trainingslauf verwendete Abruf umfasst 30 vergangene Tage. Die Inference-Pipeline ruft einen Tag historische Daten sowie drei Forecast-Tage ab, damit die Rolling Features für einen aktuellen Zeitpunkt berechnet und die drei Stunden vorausliegende Zielwahrscheinlichkeit ausgegeben werden können.
 
 Die wichtigsten Rohdatenfelder sind:
 
@@ -55,7 +55,7 @@ Die wichtigsten Rohdatenfelder sind:
 Das Target ist `is_severe_weather` mit zwei Klassen:
 
 - `0`: kein schweres Wetter
-- `1`: schweres Wetter beziehungsweise Sturmwarnung
+- `1`: in etwa drei Stunden erwartetes schweres Wetter beziehungsweise Sturmwarnung
 
 Das Target ist kein extern gemessenes oder amtliches Warnlabel. Es wird in der Feature-Pipeline heuristisch aus Wettermerkmalen erzeugt:
 
@@ -63,7 +63,7 @@ Das Target ist kein extern gemessenes oder amtliches Warnlabel. Es wird in der F
 - Niederschlagssumme der letzten drei Stunden über 10 mm
 - Druckänderung pro Stunde unter -0.75 hPa
 
-Sobald mindestens eine Bedingung erfuellt ist, wird das Label auf `1` gesetzt.
+Sobald mindestens eine Bedingung für die Zielstunde erfüllt ist, wird das Ereignislabel auf `1` gesetzt. Dieses Ereignislabel wird anschliessend je Standort um drei Stunden zurückverschoben. Dadurch bedeutet `is_severe_weather = 1`, dass zum Zeitpunkt des Datensatzes etwa drei Stunden später ein Sturm-/Unwetterereignis erwartet wird.
 
 ### 2.3 Feature Engineering
 
@@ -113,8 +113,8 @@ Die Pipeline besteht aus folgenden Schritten:
 4. Sortieren nach Standort und Zeit.
 5. Bereinigung der Rohdaten: Zeitduplikate werden entfernt, physikalisch ungültige Werte als fehlend markiert und fehlende Werte innerhalb des Standorts interpoliert oder mit dem Standortmedian ergänzt.
 6. Berechnung der Rolling- und Änderungsfeatures.
-7. Erzeugung des heuristischen Targets `is_severe_weather`.
-8. Entfernung der ersten unvollständigen Zeilen, für die notwendige Änderungsfeatures noch nicht berechnet werden können.
+7. Erzeugung des heuristischen Ereignislabels und Verschiebung um drei Stunden für `is_severe_weather`.
+8. Entfernung der letzten drei Zeilen je Standort, für die kein drei Stunden späterer Zielwert vorhanden ist.
 9. Erzeugung der eindeutigen ID `event_id` und des Zeitfelds `event_time`.
 10. Upload in die Hopsworks Feature Group `weather_features_batch`, Version `1`.
 
@@ -143,7 +143,7 @@ Die Trainings-Pipeline führt folgende Schritte aus:
 7. Berechnung eines Klassengewichts für die seltenere Unwetterklasse.
 8. Training eines `XGBClassifier`.
 9. Evaluation mit Classification Report, F1-Score, ROC-AUC und Confusion Matrix.
-10. Speicherung des Modells als `model.joblib` und der Kennzahlen als `metrics.json`.
+10. Speicherung des Modells als `model.joblib` und der Kennzahlen als `metrics.json`, einschliesslich des Zielhorizonts `forecast_horizon_hours: 3`.
 11. Upload des Modellordners in die Hopsworks Model Registry.
 
 ### 4.1 Modell
@@ -157,7 +157,7 @@ Die lokale Modellablage befindet sich unter:
 Dort liegen:
 
 - `model.joblib`: serialisiertes XGBoost-Modell
-- `metrics.json`: gespeicherte Trainingskennzahlen und Datensatzgrössen
+- `metrics.json`: gespeicherte Trainingskennzahlen, Datensatzgrössen und Zielhorizont
 
 Das Modell wird zusätzlich unter dem Namen `severe_weather_classifier` in der Hopsworks Model Registry gespeichert.
 
@@ -172,7 +172,7 @@ Die Inference-Pipeline arbeitet in diesen Schritten:
 3. Anwendung derselben Duplikat-, Wertebereichs- und Missing-Value-Bereinigung wie in der Feature-Pipeline.
 4. Laden der neuesten gespeicherten Batch-Features über die Feature View.
 5. Berechnung derselben Rolling-, Druck- und Anomaliefeatures wie beim Training für die aktuellen Live-Daten.
-6. Auswahl des aktuellen beziehungsweise nächsten verfügbaren Zeitpunkts.
+6. Auswahl des aktuellen beziehungsweise nächsten verfügbaren Zeitpunkts als Ausgangspunkt für die Drei-Stunden-Prognose.
 7. Ermitteln der höchsten Modellversion aus der Model Registry oder Laden einer über `HOPSWORKS_MODEL_VERSION` festgelegten Version.
 8. Laden der Datei `model.joblib`.
 9. Prüfung, ob der Live-Feature-Vektor alle vom Modell erwarteten Feature-Namen enthält.
@@ -181,7 +181,7 @@ Die Inference-Pipeline arbeitet in diesen Schritten:
 
 Die Warnschwelle ist standardmässig `0.3`. Eine Wahrscheinlichkeit ab dieser Schwelle erzeugt `storm_warning=True`; ab `0.6` wird zusätzlich die Risikostufe `HOCH` ausgegeben.
 
-Die historischen Batch-Features und das Training stammen aus dem Feature Store. Der aktuelle Inferenz-Feature-Vektor wird zur Laufzeit direkt aus den aktuellen Open-Meteo-Daten berechnet. Dadurch ist die Feature-Berechnung logisch konsistent, der aktuelle Vektor wird jedoch nicht nochmals als Datensatz in die Feature Group geschrieben.
+Die historischen Batch-Features und das Training stammen aus dem Feature Store. Der aktuelle Inferenz-Feature-Vektor wird zur Laufzeit direkt aus den aktuellen Open-Meteo-Daten berechnet. Das Modell liefert damit die Wahrscheinlichkeit eines Ereignisses etwa drei Stunden nach dem gewählten Ausgangszeitpunkt. Dadurch ist die Feature-Berechnung logisch konsistent, der aktuelle Vektor wird jedoch nicht nochmals als Datensatz in die Feature Group geschrieben.
 
 ## 6. Voraussetzungen
 
@@ -312,6 +312,8 @@ Erwartetes Ergebnis:
 Real-Time Ergebnis: {
     'storm_probability': ...,
     'storm_warning': ...,
+      'forecast_horizon_hours': 3,
+      'forecast_description': 'Sturmrisiko in etwa 3 Stunden',
     'risk_level': ...
 }
 ```

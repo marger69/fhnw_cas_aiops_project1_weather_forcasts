@@ -116,7 +116,7 @@ Ein heuristisches Label wird mit Regeln wie diesen erzeugt:
 - starke Regenmengen in kurzen Zeitfenstern,
 - starker Luftdruckabfall.
 
-Die Spalte `is_severe_weather` wird dadurch als Zielvariable für das Modell erzeugt.
+Das Ereignislabel wird zunächst für die jeweilige Zielstunde erzeugt. Anschliessend wird es je Standort um drei Stunden zurückverschoben. Die Spalte `is_severe_weather` bedeutet dadurch: Für diesen Zeitpunkt wird etwa drei Stunden später ein Sturm-/Unwetterereignis erwartet. Die zukünftigen Wetterwerte werden nicht als Features verwendet.
 
 ### 4.4 Finaler Datenrahmen
 Die Funktion `build_final_dataframe(...)` stellt den finalen Datensatz zusammen. Dabei werden unter anderem diese Punkte berücksichtigt:
@@ -270,9 +270,9 @@ Damit entspricht das Projekt sehr gut den gewünschten Lernzielen einer MLOps-Pr
 
 ## 10. Wichtige Projektdateien
 
-- Feature Pipeline: `Feature Pipeline/feature_pipeline.ipynb`
+- Feature Pipeline: `01_Feature_Pipeline/feature_pipeline.ipynb`
 - Trainings Pipeline: `Trainings Pipeline/trainings_pipeline.ipynb`
-- Inference Pipeline: `Inference Pipeline/inference_pipeline.ipynb`
+- Inference Pipeline: `03_Inference_Pipeline/inference_pipeline.ipynb`
 - Modell: `Trainings Pipeline/severe_weather_model/model.joblib`
 - Metriken: `Trainings Pipeline/severe_weather_model/metrics.json`
 - README: `README.md`
