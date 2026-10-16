@@ -38,7 +38,7 @@ Real-Time Prediction / Warning
 ```
 
 ### 2.1 Feature
-Die Feature Pipeline sammelt historische und aktuelle Wetterdaten für verschiedene Standorte (z. B. München, Hamburg). Daraus werden Wetter-Features wie Temperatur, Luftdruck, Niederschlag, Wind und zeitliche Trends abgeleitet.
+Die Feature Pipeline sammelt historische und aktuelle Wetterdaten für verschiedene Standorte (z. B. Bern, Zürich, Genf, Lugano). Daraus werden Wetter-Features wie Temperatur, Luftdruck, Niederschlag, Wind und zeitliche Trends abgeleitet.
 
 ### 2.2 Training
 Die Training Pipeline lädt die Features aus dem Feature Store, erstellt eine Feature View und trainiert ein XGBoost-Klassifikationsmodell. Das Modell lernt, ob ein Wetterereignis als "severe weather" (starkes Unwetter) zu klassifizieren ist.
@@ -56,7 +56,7 @@ Die Projekt-Daten kommen von der Open-Meteo Weather API:
 - historische Daten,
 - aktuelle Prognosedaten,
 - stündliche Messwerte,
-- Standorte: München und Hamburg.
+- Standorte: Bern, Zürich, Genf und Lugano.
 
 ### 3.2 Zielvariable
 Das Ziel ist eine binäre Klassifikation:
@@ -85,7 +85,7 @@ In der Funktion `fetch_weather_data(...)` werden über die Open-Meteo API stünd
 - Latitude / Longitude,
 - `past_days`,
 - `forecast_days`,
-- Zeitzone `Europe/Berlin`,
+- Zeitzone `Europe/Zurich`,
 - gewünschte Features,
 
 übergeben.

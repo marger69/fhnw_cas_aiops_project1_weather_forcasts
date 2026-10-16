@@ -29,12 +29,14 @@ Das Modell soll für einen aktuellen Wetterzeitpunkt die Wahrscheinlichkeit eine
 
 ### 2.1 Datenquelle
 
-Die Daten werden über die [Open-Meteo Weather API](https://open-meteo.com/) bezogen. Verwendet werden stündliche Wetterdaten für zwei Beispielstandorte:
+Die Daten werden über die [Open-Meteo Weather API](https://open-meteo.com/) bezogen. Verwendet werden stündliche Wetterdaten für vier Beispielstandorte:
 
 | Standort | Breitengrad | Längengrad |
 |---|---:|---:|
-| München | 48.1351 | 11.5820 |
-| Hamburg | 53.5511 | 9.9937 |
+| Bern | 46.9480 | 7.4474 |
+| Zürich | 47.3769 | 8.5417 |
+| Genf | 46.2044 | 6.1432 |
+| Lugano | 46.0037 | 8.9511 |
 
 Die Feature-Pipeline verwendet historische Daten und einen Forecast. Der im aktuellen Trainingslauf verwendete Abruf umfasst 30 vergangene Tage. Die Inference-Pipeline ruft einen Tag historische Daten sowie drei Forecast-Tage ab, damit die Rolling Features für einen aktuellen Zeitpunkt berechnet und die drei Stunden vorausliegende Zielwahrscheinlichkeit ausgegeben werden können.
 
@@ -109,7 +111,7 @@ Die Pipeline besteht aus folgenden Schritten:
 
 1. Verbindung mit Hopsworks über `HOPSWORKS_API_KEY` und `HOPSWORKS_PROJECT_NAME`.
 2. Abruf der stündlichen Wetterdaten über Open-Meteo.
-3. Zusammenführen der Daten für München und Hamburg.
+3. Zusammenführen der Daten für Bern, Zürich, Genf und Lugano.
 4. Sortieren nach Standort und Zeit.
 5. Bereinigung der Rohdaten: Zeitduplikate werden entfernt, physikalisch ungültige Werte als fehlend markiert und fehlende Werte innerhalb des Standorts interpoliert oder mit dem Standortmedian ergänzt.
 6. Berechnung der Rolling- und Änderungsfeatures.

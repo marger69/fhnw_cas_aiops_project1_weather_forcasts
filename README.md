@@ -160,12 +160,14 @@ Anpassung des Inference-Notebooks erforderlich.
 * 7 vergangene Tage (`past_days=7`)
 * 1 zusätzlicher Prognosetag (`forecast_days=1`)
 * Stündliche Wetterdaten
-* Zeitzone: Europe/Berlin
+* Zeitzone: Europe/Zurich
 * Insgesamt ungefähr 8 Tage Daten
 * Tatsächlicher aktueller Trainingslauf: 30 vergangene Tage (`past_days=30`), damit positive und negative Labels entstehen.
 * Definierte Standorte
-  * München, Breitengrad: 48.1351, Längengrad: 11.5820
-  * Hamburg, Breitengrad: 53.5511, Längengrad: 9.9937
+  * Bern, Breitengrad: 46.9480, Längengrad: 7.4474
+  * Zürich, Breitengrad: 47.3769, Längengrad: 8.5417
+  * Genf, Breitengrad: 46.2044, Längengrad: 6.1432
+  * Lugano, Breitengrad: 46.0037, Längengrad: 8.9511
 * Ordnername: `01_Feature_Pipeline`
 * Name Jupyter-Notebook: `feature_pipeline.ipynb`
 
@@ -351,7 +353,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Wandelt die API-Antwort in einen strukturierten `pandas.DataFrame` um und ergänzt Standortinformationen
 * Nutzt `response.raise_for_status()`, um Fehler bei der API-Abfrage frühzeitig zu erkennen
 * Gibt die Anzahl geladener Datenpunkte pro Standort zur Kontrolle aus
-* Definiert die Standorte München und Hamburg mit ihren jeweiligen Koordinaten als Beispiel für die Live-Abfrage
+* Definiert die Standorte Bern, Zürich, Genf und Lugano mit ihren jeweiligen Koordinaten als Beispiel für die Live-Abfrage
 
 #### 2.8.4. User-Input für Ad-hoc-Abfrage (Optional)
 * Definiert die Funktion `get_user_location_input`, um eine benutzerdefinierte Standortabfrage zu ermöglichen
