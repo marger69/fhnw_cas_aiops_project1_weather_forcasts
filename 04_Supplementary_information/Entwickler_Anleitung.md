@@ -29,7 +29,7 @@ Das Modell soll für einen aktuellen Wetterzeitpunkt die Wahrscheinlichkeit eine
 
 ### 2.1 Datenquelle
 
-Die Daten werden über die [Open-Meteo Weather API](https://open-meteo.com/) bezogen. Verwendet werden stündliche Wetterdaten für vier Beispielstandorte:
+Die Daten werden über die [Open-Meteo Weather API](https://open-meteo.com/) bezogen. Verwendet werden stündliche Wetterdaten für die zentral in `standorte.py` (Projektstamm) definierten 10 Standorte. Diese Liste ist die Single Source of Truth für Feature Pipeline, Inference Pipeline und Web-Demo (`FALLBACK_PLACES`). Die zuletzt dokumentierte Trainingsausführung registrierte Modellversion 23. Die Modellmetriken enthalten keine standortbezogene Aufschlüsselung; eine separate Validierung pro Ort ist damit nicht belegt.
 
 | Standort | Breitengrad | Längengrad |
 |---|---:|---:|
@@ -37,6 +37,12 @@ Die Daten werden über die [Open-Meteo Weather API](https://open-meteo.com/) bez
 | Zürich | 47.3769 | 8.5417 |
 | Genf | 46.2044 | 6.1432 |
 | Lugano | 46.0037 | 8.9511 |
+| Basel | 47.5584 | 7.5733 |
+| Luzern | 47.0502 | 8.3093 |
+| St. Gallen | 47.4245 | 9.3767 |
+| Lausanne | 46.5197 | 6.6323 |
+| Chur | 46.8499 | 9.5329 |
+| Sion | 46.2293 | 7.3589 |
 
 Die Feature-Pipeline verwendet historische Daten und einen Forecast. Der im aktuellen Trainingslauf verwendete Abruf umfasst 30 vergangene Tage. Die Inference-Pipeline ruft einen Tag historische Daten sowie drei Forecast-Tage ab, damit die Rolling Features für einen aktuellen Zeitpunkt berechnet und die drei Stunden vorausliegende Zielwahrscheinlichkeit ausgegeben werden können.
 
@@ -111,7 +117,7 @@ Die Pipeline besteht aus folgenden Schritten:
 
 1. Verbindung mit Hopsworks über `HOPSWORKS_API_KEY` und `HOPSWORKS_PROJECT_NAME`.
 2. Abruf der stündlichen Wetterdaten über Open-Meteo.
-3. Zusammenführen der Daten für Bern, Zürich, Genf und Lugano.
+3. Zusammenführen der Daten für alle Standorte aus `standorte.py`.
 4. Sortieren nach Standort und Zeit.
 5. Bereinigung der Rohdaten: Zeitduplikate werden entfernt, physikalisch ungültige Werte als fehlend markiert und fehlende Werte innerhalb des Standorts interpoliert oder mit dem Standortmedian ergänzt.
 6. Berechnung der Rolling- und Änderungsfeatures.
@@ -303,7 +309,7 @@ Notebook öffnen:
 Alle Zellen der Reihe nach ausführen. Die Zelle zum Laden des Modells ermittelt standardmässig die höchste vorhandene Registry-Version. Für einen reproduzierbaren Lauf mit einer bestimmten Modellversion kann vor dem Start optional `HOPSWORKS_MODEL_VERSION` in `.env` gesetzt werden, zum Beispiel:
 
 ```dotenv
-HOPSWORKS_MODEL_VERSION=16
+HOPSWORKS_MODEL_VERSION=23
 ```
 
 Nach einem neuen Training ist dadurch keine Notebook-Anpassung erforderlich; ohne gesetzte Variable wird die höchste vorhandene Version verwendet.

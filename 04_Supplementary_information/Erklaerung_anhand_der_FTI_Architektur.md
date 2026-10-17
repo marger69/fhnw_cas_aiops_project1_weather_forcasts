@@ -38,7 +38,7 @@ Real-Time Prediction / Warning
 ```
 
 ### 2.1 Feature
-Die Feature Pipeline sammelt historische und aktuelle Wetterdaten für verschiedene Standorte (z. B. Bern, Zürich, Genf, Lugano). Daraus werden Wetter-Features wie Temperatur, Luftdruck, Niederschlag, Wind und zeitliche Trends abgeleitet.
+Die Feature Pipeline sammelt historische und aktuelle Wetterdaten für verschiedene Standorte (z. B. die 10 Standorte aus `standorte.py`; das gespeicherte Modell wurde mit Bern, Zürich, Genf, Lugano trainiert). Daraus werden Wetter-Features wie Temperatur, Luftdruck, Niederschlag, Wind und zeitliche Trends abgeleitet.
 
 ### 2.2 Training
 Die Training Pipeline lädt die Features aus dem Feature Store, erstellt eine Feature View und trainiert ein XGBoost-Klassifikationsmodell. Das Modell lernt, ob ein Wetterereignis als "severe weather" (starkes Unwetter) zu klassifizieren ist.
@@ -56,7 +56,7 @@ Die Projekt-Daten kommen von der Open-Meteo Weather API:
 - historische Daten,
 - aktuelle Prognosedaten,
 - stündliche Messwerte,
-- Standorte: Bern, Zürich, Genf und Lugano.
+- Standorte: die 10 Orte aus `standorte.py` (Bern, Zürich, Genf, Lugano, Basel, Luzern, St. Gallen, Lausanne, Chur, Sion).
 
 ### 3.2 Zielvariable
 Das Ziel ist eine binäre Klassifikation:
@@ -167,14 +167,15 @@ Die Evaluation erfolgt mit klaren Klassifizierungsmetriken:
 - ROC-AUC,
 - Confusion Matrix.
 
-Die laut Projekt hinterlegten Metriken zeigen:
+Die im aktuellen lokalen `metrics.json` gespeicherten Metriken der zuletzt dokumentierten Trainingsausführung (Registry-Modellversion 23) sind:
 
-- F1-Score: 1.0
-- ROC-AUC: 1.0
-- Train samples: 1172
-- Test samples: 294
+- F1-Score: 0.4452
+- ROC-AUC: 0.9172
+- Trainingsbeispiele: 8.371
+- Testbeispiele: 2.093
+- Anteil positiver Labels im Trainingssatz: ca. 5.05 %
 
-Das zeigt, dass das Modell auf dem erzeugten Datensatz sehr stark performt. Wichtig ist aber: Das ist primär eine Architektur- und MLOps-Demo, nicht eine produktionsreife Wettervorhersage.
+Der hohe ROC-AUC-Wert steht neben einem deutlich niedrigeren F1-Score für die seltene positive Klasse. Die Werte stammen aus einem einzelnen Train/Test-Split und belegen keine produktive Warnqualität oder standortbezogene Generalisierung. Das Projekt ist primär eine Architektur- und MLOps-Demo.
 
 ### 5.6 Modell-Storage
 Das Modell wird lokal als `model.joblib` gespeichert und mit den Metriken in der Model Registry bzw. im Projektordner abgelegt.

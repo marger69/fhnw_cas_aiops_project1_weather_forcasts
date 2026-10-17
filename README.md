@@ -21,6 +21,8 @@
 * Hopsworks-Projekt: [https://eu-west.cloud.hopsworks.ai/p/44167/view](https://eu-west.cloud.hopsworks.ai/p/44167/view)
 * Github-Projekt: [https://github.com/marger69/fhnw_cas_aiops_project1_weather_forcasts](https://github.com/marger69/fhnw_cas_aiops_project1_weather_forcasts)
 
+* Zusatzteil: [99_Additional_app](99_Additional_app/) enthält eine ergänzende Web-App; die Anleitung dazu steht im [README der Web-App](99_Additional_app/README_Additional_app.md).
+
 ## 1. Aufgabenstellung
 Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-Inference) und Feature Store zu vertiefen. Dazu sollen drei Pipelines implementiert werden.
 
@@ -139,7 +141,7 @@ Windanomalien.
 * Name der virtuellen Umgebung: `fhnw_p1_weather_forecasts`
 * Prüfung der Python-Version (Python < 3.13): `python --version`
 * **Bemerkung:** Installierte Python-Version: 3.12.3
-* Die direkten Projektabhängigkeiten sind in [requirements.txt](requirements.txt) mit exakten Versionen festgelegt. `pyarrow` ist explizit enthalten, da es für die Hopsworks-Anbindung benötigt wird.
+* Die direkten Projektabhängigkeiten sind in [requirements.txt](requirements.txt) mit exakten Versionen festgelegt. Hopsworks ist auf Version `5.1.2` fixiert, passend zum verwendeten Backend 5.1.0. `pyarrow` ist explizit enthalten, da es für die Hopsworks-Anbindung benötigt wird.
 * Installation der Abhängigkeiten:
   ```bash
   python -m venv .venv
@@ -150,7 +152,8 @@ Windanomalien.
 Die Inference-Pipeline ermittelt standardmässig die höchste vorhandene Version
 von `severe_weather_classifier` aus der Hopsworks Model Registry. Für einen
 reproduzierbaren Lauf mit einer bestimmten Version kann in `.env` optional
-`HOPSWORKS_MODEL_VERSION=16` gesetzt werden. Nach einem neuen Training ist keine
+`HOPSWORKS_MODEL_VERSION=23` gesetzt werden (zuletzt dokumentierte Registry-Version).
+Nach einem neuen Training ist keine
 Anpassung des Inference-Notebooks erforderlich.
 
 ### 2.6. Feature-Pipeline
@@ -163,11 +166,18 @@ Anpassung des Inference-Notebooks erforderlich.
 * Zeitzone: Europe/Zurich
 * Insgesamt ungefähr 8 Tage Daten
 * Tatsächlicher aktueller Trainingslauf: 30 vergangene Tage (`past_days=30`), damit positive und negative Labels entstehen.
-* Definierte Standorte
+* Definierte Standorte (zentral in `standorte.py` im Projektstamm, identisch mit `FALLBACK_PLACES` der Web-Demo)
   * Bern, Breitengrad: 46.9480, Längengrad: 7.4474
   * Zürich, Breitengrad: 47.3769, Längengrad: 8.5417
   * Genf, Breitengrad: 46.2044, Längengrad: 6.1432
   * Lugano, Breitengrad: 46.0037, Längengrad: 8.9511
+  * Basel, Breitengrad: 47.5584, Längengrad: 7.5733
+  * Luzern, Breitengrad: 47.0502, Längengrad: 8.3093
+  * St. Gallen, Breitengrad: 47.4245, Längengrad: 9.3767
+  * Lausanne, Breitengrad: 46.5197, Längengrad: 6.6323
+  * Chur, Breitengrad: 46.8499, Längengrad: 9.5329
+  * Sion, Breitengrad: 46.2293, Längengrad: 7.3589
+  * Die zuletzt dokumentierte Trainingsausführung registrierte Modellversion 23. Die Feature-Pipeline verwendet die zehn zentral definierten Standorte. Die gespeicherten Modellmetriken enthalten keine Aufschlüsselung nach Standort; eine separate Validierung pro Ort ist damit nicht belegt.
 * Ordnername: `01_Feature_Pipeline`
 * Name Jupyter-Notebook: `feature_pipeline.ipynb`
 
@@ -243,7 +253,7 @@ Die Funktion `run_feature_pipeline` bildet den zentralen Baustein der Feature-Pi
 
 | Parameter        | Beschreibung                                              |
 |-------------------|-------------------------------------------------------------|
-| `locations`       | Liste der Standorte mit Namen, Breiten- und Längengrad     |
+| `locations`       | Liste der Standorte mit Namen, Breiten- und Längengrad (aus `standorte.py`) |
 | `fs`              | Hopsworks Feature Store Objekt (optional, nur bei Upload)   |
 | `past_days`       | Anzahl der Tage in der Vergangenheit für den Datenabruf      |
 | `forecast_days`   | Anzahl der Vorhersagetage für den Datenabruf                |
@@ -353,7 +363,7 @@ Im gezeigten Beispiel wird die Pipeline mit `upload=False` ausgeführt, da die F
 * Wandelt die API-Antwort in einen strukturierten `pandas.DataFrame` um und ergänzt Standortinformationen
 * Nutzt `response.raise_for_status()`, um Fehler bei der API-Abfrage frühzeitig zu erkennen
 * Gibt die Anzahl geladener Datenpunkte pro Standort zur Kontrolle aus
-* Definiert die Standorte Bern, Zürich, Genf und Lugano mit ihren jeweiligen Koordinaten als Beispiel für die Live-Abfrage
+* Definiert die Standorte über die zentrale Liste `standorte.py` (10 Schweizer Orte, identisch mit `FALLBACK_PLACES` der Web-Demo) als Beispiel für die Live-Abfrage
 
 #### 2.8.4. User-Input für Ad-hoc-Abfrage (Optional)
 * Definiert die Funktion `get_user_location_input`, um eine benutzerdefinierte Standortabfrage zu ermöglichen
