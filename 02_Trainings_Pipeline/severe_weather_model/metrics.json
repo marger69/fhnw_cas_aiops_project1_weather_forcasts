@@ -1,8 +1,8 @@
 {
-  "f1_score": 0.44518272425249167,
-  "n_train_samples": 8371,
-  "n_test_samples": 2093,
-  "positive_class_ratio": 0.05053159718074304,
+  "f1_score": 0.46153846153846156,
+  "n_train_samples": 8390,
+  "n_test_samples": 2098,
+  "positive_class_ratio": 0.05065554231227652,
   "forecast_horizon_hours": 3,
-  "roc_auc": 0.9172261207281291
+  "roc_auc": 0.9243104493445481
 }
