@@ -71,7 +71,7 @@ Zielvariable: `is_severe_weather` (0/1) = Sturmereignis **3 Stunden später**, w
 
 Nicht eindeutig / Hinweise:
 - Die Risikostufen sind keine Modelleigenschaft. Aus der Inference-Pipeline stammen die Schwellen 0.3 (Warnung) und 0.6 (hoch). Die Stufe «Sehr hoch» (>= 0.8) ist eine Festlegung dieser Demo. Anpassbar in `RISK_LEVELS`.
-- Der zuletzt dokumentierte Trainingslauf registrierte Modellversion 23. Die lokalen Metriken enthalten keine standortbezogene Aufschlüsselung; eine separate Validierung pro Ort ist nicht belegt. Der Anteil positiver Labels im Trainingssatz beträgt ca. 5.05 %.
+- Der zuletzt dokumentierte Trainingslauf registrierte Modellversion 24. Die lokalen Metriken enthalten keine standortbezogene Aufschlüsselung; eine separate Validierung pro Ort ist nicht belegt. Der Anteil positiver Labels im Trainingssatz beträgt ca. 5.07 %.
 - Trainiert wurde mit 30 Tagen Historie und Zeitzone Europe/Zurich; die Inference-Pipeline (und diese Demo) nutzt 1 Tag Historie, UTC. Das ist dort so umgesetzt; Rolling-Features sind dadurch nur nahe am Datenanfang leicht anders.
 
 ## 9. Datenfluss
@@ -103,7 +103,7 @@ Weboberfläche
 
 ## 11. Bekannte Einschränkungen
 
-- Keine amtliche Warnung. Die aktuellen lokalen Metriken (F1 0.4452, ROC-AUC 0.9172; siehe `02_Trainings_Pipeline/severe_weather_model/metrics.json`) stammen aus einem einzelnen Train/Test-Split mit ca. 5.05 % positiven Labels im Trainingssatz und belegen keine produktive Warnqualität.
+- Keine amtliche Warnung. Die aktuellen lokalen Metriken (F1 0.4615, ROC-AUC 0.9243; siehe `02_Trainings_Pipeline/severe_weather_model/metrics.json`) stammen aus einem einzelnen Train/Test-Split mit ca. 5.07 % positiven Labels im Trainingssatz und belegen keine produktive Warnqualität.
 - Internetverbindung für die Wetterdaten nötig (die Standortliste selbst ist fest hinterlegt).
 - Open-Meteo ist für nicht-kommerzielle Nutzung kostenlos, mit Abruflimits.
 - Die Pipelines verwenden die zehn zentral definierten Standorte. Die gespeicherten Modellmetriken enthalten keine standortbezogene Aufschlüsselung; eine separate Validierung pro Ort ist nicht belegt.

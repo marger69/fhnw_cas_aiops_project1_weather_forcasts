@@ -29,7 +29,7 @@ Das Modell soll für einen aktuellen Wetterzeitpunkt die Wahrscheinlichkeit eine
 
 ### 2.1 Datenquelle
 
-Die Daten werden über die [Open-Meteo Weather API](https://open-meteo.com/) bezogen. Verwendet werden stündliche Wetterdaten für die zentral in `standorte.py` (Projektstamm) definierten 10 Standorte. Diese Liste ist die Single Source of Truth für Feature Pipeline, Inference Pipeline und Web-Demo (`FALLBACK_PLACES`). Die zuletzt dokumentierte Trainingsausführung registrierte Modellversion 23. Die Modellmetriken enthalten keine standortbezogene Aufschlüsselung; eine separate Validierung pro Ort ist damit nicht belegt.
+Die Daten werden über die [Open-Meteo Weather API](https://open-meteo.com/) bezogen. Verwendet werden stündliche Wetterdaten für die zentral in `standorte.py` (Projektstamm) definierten 10 Standorte. Diese Liste ist die Single Source of Truth für Feature Pipeline, Inference Pipeline und Web-Demo (`FALLBACK_PLACES`). Die zuletzt dokumentierte Trainingsausführung registrierte Modellversion 24. Die Modellmetriken enthalten keine standortbezogene Aufschlüsselung; eine separate Validierung pro Ort ist damit nicht belegt.
 
 | Standort | Breitengrad | Längengrad |
 |---|---:|---:|
@@ -309,7 +309,7 @@ Notebook öffnen:
 Alle Zellen der Reihe nach ausführen. Die Zelle zum Laden des Modells ermittelt standardmässig die höchste vorhandene Registry-Version. Für einen reproduzierbaren Lauf mit einer bestimmten Modellversion kann vor dem Start optional `HOPSWORKS_MODEL_VERSION` in `.env` gesetzt werden, zum Beispiel:
 
 ```dotenv
-HOPSWORKS_MODEL_VERSION=23
+HOPSWORKS_MODEL_VERSION=24
 ```
 
 Nach einem neuen Training ist dadurch keine Notebook-Anpassung erforderlich; ohne gesetzte Variable wird die höchste vorhandene Version verwendet.

@@ -167,13 +167,13 @@ Die Evaluation erfolgt mit klaren Klassifizierungsmetriken:
 - ROC-AUC,
 - Confusion Matrix.
 
-Die im aktuellen lokalen `metrics.json` gespeicherten Metriken der zuletzt dokumentierten Trainingsausführung (Registry-Modellversion 23) sind:
+Die im aktuellen lokalen `metrics.json` gespeicherten Metriken der zuletzt dokumentierten Trainingsausführung (Registry-Modellversion 24) sind:
 
-- F1-Score: 0.4452
-- ROC-AUC: 0.9172
-- Trainingsbeispiele: 8.371
-- Testbeispiele: 2.093
-- Anteil positiver Labels im Trainingssatz: ca. 5.05 %
+- F1-Score: 0.4615
+- ROC-AUC: 0.9243
+- Trainingsbeispiele: 8.390
+- Testbeispiele: 2.098
+- Anteil positiver Labels im Trainingssatz: ca. 5.07 %
 
 Der hohe ROC-AUC-Wert steht neben einem deutlich niedrigeren F1-Score für die seltene positive Klasse. Die Werte stammen aus einem einzelnen Train/Test-Split und belegen keine produktive Warnqualität oder standortbezogene Generalisierung. Das Projekt ist primär eine Architektur- und MLOps-Demo.
 

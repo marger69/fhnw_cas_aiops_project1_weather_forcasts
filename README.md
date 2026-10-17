@@ -152,7 +152,7 @@ Windanomalien.
 Die Inference-Pipeline ermittelt standardmässig die höchste vorhandene Version
 von `severe_weather_classifier` aus der Hopsworks Model Registry. Für einen
 reproduzierbaren Lauf mit einer bestimmten Version kann in `.env` optional
-`HOPSWORKS_MODEL_VERSION=23` gesetzt werden (zuletzt dokumentierte Registry-Version).
+`HOPSWORKS_MODEL_VERSION=24` gesetzt werden (zuletzt dokumentierte Registry-Version).
 Nach einem neuen Training ist keine
 Anpassung des Inference-Notebooks erforderlich.
 
@@ -177,7 +177,7 @@ Anpassung des Inference-Notebooks erforderlich.
   * Lausanne, Breitengrad: 46.5197, Längengrad: 6.6323
   * Chur, Breitengrad: 46.8499, Längengrad: 9.5329
   * Sion, Breitengrad: 46.2293, Längengrad: 7.3589
-  * Die zuletzt dokumentierte Trainingsausführung registrierte Modellversion 23. Die Feature-Pipeline verwendet die zehn zentral definierten Standorte. Die gespeicherten Modellmetriken enthalten keine Aufschlüsselung nach Standort; eine separate Validierung pro Ort ist damit nicht belegt.
+  * Die zuletzt dokumentierte Trainingsausführung registrierte Modellversion 24. Die Feature-Pipeline verwendet die zehn zentral definierten Standorte. Die gespeicherten Modellmetriken enthalten keine Aufschlüsselung nach Standort; eine separate Validierung pro Ort ist damit nicht belegt.
 * Ordnername: `01_Feature_Pipeline`
 * Name Jupyter-Notebook: `feature_pipeline.ipynb`
 
