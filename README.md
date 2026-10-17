@@ -6,7 +6,7 @@
 * Referent: Tobias Mérinat
 * Autor: Markus Gerber
 * Erstellt vom 12.09. bis 17.10.2026
-* Aufwand: ca. 32h
+* Aufwand: ca. 36h
 
 ## Wichtige Links
 * Entwickler-Anleitung: [04_Supplementary_information/Entwickler_Anleitung.md](04_Supplementary_information/Entwickler_Anleitung.md)
