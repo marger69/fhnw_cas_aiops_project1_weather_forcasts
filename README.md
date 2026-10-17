@@ -94,7 +94,7 @@ Wir nutzen die Projektarbeit, um die Themen FTI-Architektur (Feature-Training-In
 * Druckänderung (Δp, 3h) | Luftdruck jetzt − Luftdruck vor 3h | Starker Abfall = Hinweis auf Sturm/Unwetter |
 
 #### 2.2.1. Target
-> Als Mitarbeiter der Mobiliar sehe ich in präzisen Kurzfrist-Prognosen zu Unwetterwarnungen einen entscheidenden Baustein für eine wirksame Risikoprävention.
+> Als Mitarbeiter der Mobiliar sehe ich in präzisen kurzfristigen Unwetterprognosen einen grossen Mehrwert. Sie ermöglichen eine frühzeitige Vorbereitung auf ein erhöhtes Schadenaufkommen und unterstützen eine effiziente Schadenbearbeitung.
 >
 >
 > Das Ziel des Modells ist die Vorhersage eines Sturm-/Unwetterereignisses etwa 3 Stunden vor dem tatsächlichen Einsetzen. Dazu wird das heuristische Ereignislabel der Zielstunde um drei Stunden zurückverschoben. Das Label wird aus Wetterindikatoren wie starkem Druckabfall, Windböen-Anomalien und extremen Niederschlagsmengen abgeleitet und ist kein offiziell validiertes Warnlabel.
